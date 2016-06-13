@@ -1,0 +1,197 @@
+Title: Games of Life
+Author: Iain
+Summary: Games of Life
+Date: 2015-01-10
+
+I've recently been trying to teach myself JavaScript and I find the best way to learning a new language is to try and build something in it. Something that's always interesting to build is Conway's [Game of Life](http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). The Game of life is a two dimensional [Cellular Automaton](http://en.wikipedia.org/wiki/Cellular_automaton) with some interesting properties. The rules are incredibly simple, yet it can lead to some incredibly complex patterns, and has even been shown to be Turing complete. 
+
+The Game of Life is not a game in the traditional sense, there are no players or winners. Rather it is defined on an infinite rectangular grid consisting of "cells", each of which can take one of two states: "dead" or "alive". The a set of rules then describe how each cell changes from one generation to the next. 
+
+The rules are simple. For each cell, we look at the it's neighbours, the eight cells closest to it (known as its [Moore neighbourhood](http://en.wikipedia.org/wiki/Moore_neighborhood)). Whether the cell is alive or dead in the next generation depends on whether is it alive or dead in the current generation, and the number of alive cells in it's Moore Neighbourhood:
+
+- Each living cell with either two or three living neighbours survives to the next generation, otherwise it dies.
+- Each dead cell with exactly three living neighbours comes alive again, otherwise it stays dead.
+
+The game then proceeds, generation by generation. What's interesting are the patterns of living cells on the grid can exhibit. Some initial patterns will move to a fixed state, others will oscillate, some can travel across the grid indefinitely and even self replicating patterns exist.
+
+Implementation
+--------------
+My implementation of the game of life can be found at my [github](https://github.com/ijmbarr/GamesOfLife). In terms of how it works its a fairly naive approach: the cells are stored in a rectangular array, and at each timestep we apply the rule to each cell the generate the next generation. The results are then drawn to the canvas. The advantage of this implementation is that it is easy to program - my main focus here was to understand JavaScript rather than optimise it. 
+
+A major disadvantage is that we end up doing unnecessary calculations: even if all the cells were dead we end up checking them all. One way around this would be to keep track of which cells are alive and only check these cells and their neighbours. By keeping track of only the living cells we also get around the issue of how to deal with cells at the edge of the array. Currently I either treat the array as having periodic boundary conditions (it wraps back round on itself, acting like the grid was on a torus), or it treats those of the edge as being surrounded by dead cells.
+
+I've added a a few more options, including the ability to change the size of the grid, to initialise to an empty grid or a randomly filled grid and the ability to add "noise" - when used this option means that at each timestep there is a small change for that cell to come alive. This has the effect of breaking up oscillators while not in the initial ruleset adds something.
+
+The result is below, feel free to play with it.
+
+The Game
+----------
+Click anywhere on the grid to change the state of the cell. Press "run" to begin the game running. Below the canvas are a set of options that allow you to change the rules - after changing them you need to press "initialise" for the changes to take effect. Watch out for larger grid sizes - they can slow things down. 
+
+
+<script src="{attach}grid.js"></script>
+<script src="{attach}gol.js"></script>
+<script src="{attach}jquery-1.11.2.min.js"></script>
+<style type="text/css">
+canvas { 
+border: 1px solid black; 
+position: relative;
+}
+</style>
+
+<div>
+<canvas id="testC" width="600" height="600"></canvas>
+</div>
+
+<div>
+<div>
+GridSize: 
+<select id="GridSize">
+<option value="50" selected>50 by 50</option>
+<option value="100">100 by 100 </option>
+<option value="200">200 by 200 </option>
+</select>
+</div>
+
+<div>
+How to fill the inital grid:
+<select id="Inital">
+<option value="random" selected>Random</option>
+<option value="empty">Empty</option>
+</select>
+</div>
+
+<div>
+Ruleset to use:
+<select id="Ruleset">
+<option value="gol" selected>Game of Life</option>
+<option value="replicator">replicator</option>
+<option value="seeds">seeds</option>
+<option value="254">254</option>
+<option value="34life">34life</option>
+<option value="diamoeba">diamoeba</option>
+<option value="2x2">2x2</option>
+<option value="highlife">highlife</option>
+<option value="day&night">day&night</option>
+<option value="morley">morley</option>
+</select>
+</div>
+
+<div>
+Boundary Condition: 
+<select id="Boundary">
+<option value="periodic" selected>periodic</option>
+<option value="dead">dead</option>
+</select>
+</div>
+
+<div>
+Add noise: 
+<select id="Noise">
+<option value="yes">Added Noise</option>
+<option value="no"selected>No Added Noise</option>
+</select>
+</div>
+
+<button type="button" onclick="start()">Initialise</button>
+
+</div>
+
+<div>
+<button type="button" onclick="update()">Step</button>
+<button type="button" onclick="run()">Run</button>
+<button type="button" onclick="stop()">stop</button>
+</div>
+
+<script type="text/javascript">
+//Intialise Grid
+var canvasID = "testC";
+
+//Getting Ready to do stuff
+var looping = false;
+var now, dt, last;
+
+var gameTypes = {
+"gol" : {b:[3], s:[2,3]},
+"replicator" : {b:[1,3,5,7], s:[1,3,5,7]},
+"seeds" : {b:[2], s:[]},
+"254" : {b:[2,5], s:[4]},
+"34life" :{b:[3,4], s:[3,4]},
+"diamoeba" : {b:[3,5,6,7,8], s:[3,5,6,7,8]},
+"2x2" : {b:[3,6], s:[1,2,5]},
+"highlife": {b:[3,6], s:[2,3]},
+"day&night" : {b:[3,6,7,8], s:[3,4,6,7,8]},
+"morley" : {b:[3,6,8], s:[2,4,5]}
+};
+
+//Do Stuff
+var getopts = function(){
+opts = {
+gridSize:document.getElementById("GridSize").value,
+ruleSet: gameTypes[document.getElementById("Ruleset").value],
+boundary:document.getElementById("Boundary").value,
+noise:document.getElementById("Noise").value,
+initial:document.getElementById("Inital").value
+};
+
+return opts;
+}
+
+var start = function(){
+looping = false;
+game.removeMouseListeners();
+delete game;
+game = new GOL(canvasID, getopts());
+game.start();
+}
+
+var update = function(){
+game.next();
+}
+
+var run = function(){
+looping = true;
+last = timestamp();
+game.next();
+requestAnimationFrame(loopit);
+}
+
+var stop = function(){
+looping= false;
+}
+
+var loopit = function(){
+if(looping){
+now = timestamp();
+dt = now - last;
+if(dt > 100){
+game.next();
+last = now;
+}
+requestAnimationFrame(loopit);
+}
+}
+
+function timestamp() {
+return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+}
+
+var game = new GOL(canvasID, getopts());
+game.start();
+</script>
+
+
+Other Games
+-----------
+The game of life is far from being the only cellular automaton that shows complex patterns. Even simpler rule exist that can show complexity, in one dimension Wolfram's [rule 110](http://en.wikipedia.org/wiki/Rule_110) has been shown to be Turing complete. 
+
+In two dimensions there are a whole family of rules that can be defined. To enumerate these rules, we limit ourselves to the similar idea as life: each cell can either be "dead" or "alive", and the state of the cell in the next generation depends deterministically on the sum of the living cells in the Moore neighbourhood of of that cell. A rule is written in the form Bx/Sy, where "x" and "y" are a list of unique numbers between 0 and 8. The numbers in "x" are the numbers of living neighbours a dead cell needs to come alive, "y" are the number of living neighbour a living cell needs to have to survive to the next round. Using this description Conway's Game of Life would be written as B3/S23.
+
+Some other interesting rule of this form (most taken from [wikipedia](http://en.wikipedia.org/wiki/Life-like_cellular_automaton)) have been implemented above, and can be chosen by changing the ruleset.
+
+Questions for another Post
+---------------------------
+- How does the geometry of the cells change things? For a 2D Euclidean space tiled with regular polygons we could could use hexagonal or triangular cells. What happens if we extend things or [hyperbolic geometry](http://en.wikipedia.org/wiki/Hyperbolic_geometry) or something stranger?
+- Is there a way to quantify what makes a ruleset interesting? In such a way we can computationally search through different rulesets?
+- The GOL is fundamentally irreversible: there are multiple patterns that all lead to the same final pattern. Do "interesting" cellular automata with reversible rules exist? 
+

@@ -1,0 +1,6 @@
+Title: Mastermind
+Author: Iain
+Summary: Solving Mastermind with Python
+Date: 2016-01-17
+
+{% notebook /mastermind/Mastermind.ipynb %}

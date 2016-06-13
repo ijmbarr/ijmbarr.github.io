@@ -1,0 +1,120 @@
+/***** Global *****/
+/* Body */
+body {
+    background: #FFFFFF;
+    color: #080808 ;
+    font-family: Arial;
+    text-align: left;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: Arial;
+	color: #800000
+}
+
+h1 { font-size:2em}
+h2 { font-size:1.8em}
+h3 { font-size:1.6em}
+h4 { font-size:1.4em}
+h5 { font-size:1.2em}
+h6 { font-size:1em}
+
+/* HTML5 tags */
+header, section, footer,
+aside, nav, article, figure {
+	display: block;
+}
+
+/* Anchors */
+a {outline: 0;}
+a img {border: 0px; text-decoration: none;}
+a:link, a:visited {
+	color: #FF0000;
+	text-decoration: underline;
+}
+a:hover, a:active {
+	color: #000000;
+}
+
+h1 a:hover, h1 a:active {
+	color: #FF0000;
+}
+
+#banner {
+	margin: 0 auto;
+	padding: 2.5	em 0 0 0;
+}
+
+#banner a:link, #banner a:visited {
+	color: #000000;
+	display: block;
+	font-weight: bold;
+	margin: 0 0 0 0;
+	text-decoration: none;
+}
+#banner  a:hover, #banner  a:active {
+	background: none;
+	color: #FF0000;
+	text-shadow: none;
+}
+
+/* Main Nav */
+#banner nav {
+	font-size: 1.4em;
+	height: 2.0em;
+	line-height: 2.0em;
+	margin: 0 0 1.5em 0;
+	padding: 0;
+	text-align: center;
+	border-bottom: 2px solid #800000;
+	border-top: 2px solid #800000;
+}
+
+#banner nav li {float: left; display: inline; margin: 0px 2.0em 0px 0px; line-height:2.0em; padding: 0}
+
+#content {
+	background: #ffffff;
+	border: 1px solid #F0F0F0;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+#content h1 a:link,
+#content h2 a:link {
+	color: #800000;
+	margin: 0 0 0 0;
+	text-decoration: none;
+}
+
+#aboutMenu ul
+{
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	text-align: center;
+} 
+
+#aboutMenu li
+{
+ 	display: inline-block;
+	margin: 0 1em;
+} 
+
+img {
+    max-width: 100%;
+    height: auto;
+    width: auto\9; /* ie8 */
+	display: block;
+	margin-left: auto;
+    margin-right: auto;
+}
+
+/* Tables */
+td {
+    padding: 10px
+} 
+
+

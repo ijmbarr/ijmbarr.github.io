@@ -1,0 +1,182 @@
+Title: Heavy Metal and Natural Language Processing - Part 1
+Author:Iain
+Summary: Heavy Metal and Natural Language Processing - Part 1
+Date: 2016-04-20
+
+
+In this postI am going to look at some heavy metal lyrics from the point of view of some simple Natural Language Processing (NLP) techniques.In particular,I am going to focus on how far we can get by treating the lyrics as "bags-of-words". This means that weIgnore most of the structure of text and simply focus on how frequently each word appears at the song, ablumn, band and corpus level. Despite being simplistic, thisIs a rather powerful approach.
+
+## The Data
+To get the lyrics,I scrapped [www.darklyrics.com](www.darklyrics.com). While darklyrics doesn't have a robots.txt file,I tried to be gentleIn this process. After cleaning the data up,Identifying the languages and splitting albumsInto songs, the result was the a dataset containing lyrics to 222,623 songs from 7,364 bands spread over 22,314 albums. 
+
+Before anyone asks:I have noIntention of releasing the either the raw lyric files or the code used to scrap the website.I collected the lyrics for my own entertainment, andI'm worried someone would use them to replicate darklyrics, which provides a valuble service.If thereIs enoughInterestI might release some of the n-gram dataI collected.
+
+## Now What?
+Natural languageIs anInteresting form of data, quite unlike most thingsI'd worked with before.It's made up of a descrete set of characters, arrangedInto words, arrangeInto sentenses, arrangedInto documents.ItIs expressive enough that we can useIt to communicate most humanIdeas, yet somehowItIs something we can all learn relatively simply. Creating a compute program that can understand languageIs anIncreadably difficult problem, but there are other tools we can use.
+
+To allow us to use the usual tools of statistics and machine learning on a problem like natural language, we would want somehow reduce the sequences of characters to numerical quantities. There are a number of ways to do this, but the simplest, and the oneI am going to look atIn this postIs the "bag-of-words" model.In this approximation we throw away allInformation of the order of the textIn each document and look just at the frequencies of words each document contains.
+
+## First Look
+An good starting pointIs looking at the word frequencies of the textItself, and a nice way to visualise thisIs with a [tag clound](https://en.wikipedia.org/wiki/Tag_cloud), anImage of the most frequently used words, with the size of each word adjusted to be proportional to the frequency of that words occurance. AsIt happens, thereIs a nice packageIn python called [word_cloud](https://github.com/amueller/word_cloud) that will produce one:
+
+[![Full Word Frequecy]({attach}fullmetallyrics.png "Tag Cloud of All Metal Lyrics")]({attach}fullmetallyrics.png)
+
+WhereI have removed the most common stop words from the english language.In this word cloud we are already starting to see certain words becoming emphasised, but as with most word clouds,I'm not quite sure how toInterpretIt. 
+
+If we consider what we are trying to achive with this chart, you realise that we are trying toIdentify the wordsIn metal lyrics that somehow "represent" the lyrics. The word cloud above calculates these using the absolute counts of wordsIn the lyrics. For the most part this works, andIt works because we have someIdeaIn our heads about what common "standard" english words might be, andInfer from the absolute counts where the above frequencies deviate. 
+
+Another approach would be to look at how the relative frequency of words change between metal lyrics and the english languageIn general. And to do this we need some sort of measure of what "standard" english looks like. GivenI'm using [NLTK](http://www.nltk.org/), an easy comparisonIs to the [brown corpus](https://en.wikipedia.org/wiki/Brown_Corpus), a collection of documents publishedIn 1961 covering a range of different genres (althoughIt should be pointed out, no lyrics). 
+
+To make a comparision between the two corpi,I define a measure of "Metalness", $M_{w}$ for each word ${w}$,
+
+$$
+\hbox{M}_{w} = \log{\frac{N^{metal}_{w}}{N^{brown}_{w}}}
+$$
+
+
+where $N^{metal}_{w}$Is the frequency of occurances of word $w$In my corpus of metal lyrics and $N^{brown}_{w}$Is the frequency of occurances of word $w$In the Brown corpus. To remove outliers, we take only words which occur at least ten timesIn each corpus. 
+
+The top and bottom 20 metal words are shownIn the table below, along with their "Metalness".
+
+### Most Metal Words
+|Rank | Word | Metalness |
+|---|---|---|
+|1|burn|3.81|
+|2|cries|3.63|
+|3|veins|3.59|
+|4|eternity|3.56|
+|5|breathe|3.54|
+|6|beast|3.54|
+|7|gonna|3.53|
+|8|demons|3.53|
+|9|ashes|3.51|
+|10|soul|3.40|
+|11|sorrow|3.40|
+|12|sword|3.38|
+|13|goodbye|3.28|
+|14|dreams|3.28|
+|15|gods|3.24|
+|16|pray|3.22|
+|17|reign|3.15|
+|18|tear|3.12|
+|19|flames|3.12|
+|20|scream|3.11|
+
+### Least Metal Words
+
+|Rank | Word | Metalness |
+|---|---|---|
+|1|particularly|-6.47|
+|2|indicated|-6.32|
+|3|secretary|-6.29|
+|4|committee|-6.16|
+|5|university|-6.09|
+|6|relatively|-6.08|
+|7|noted|-5.85|
+|8|approximately|-5.75|
+|9|chairman|-5.69|
+|10|employees|-5.67|
+|11|attorney|-5.66|
+|12|membership|-5.64|
+|13|administrative|-5.61|
+|14|considerable|-5.60|
+|15|academic|-5.51|
+|16|literary|-5.49|
+|17|agencies|-5.48|
+|18|measurements|-5.47|
+|19|fiscal|-5.45|
+|20|residential|-5.45|
+
+You can find a breakdown of the full the metalness of words [here]().
+
+Of course, thisIs a slightly unfair comparision.ItIs not too much of a stretch to believe that not just the content of the documents we compare affects the word frequency, but also the type of the document being compared. A relevant example would be that a song about a brutal murder would have a different word count to a news article on the same murder. A better measure of what constitues "Metalness" would have been a comparision with lyrics of other genres.
+
+As a quick measure, we can look at how the distribution of [parts of speech](https://en.wikipedia.org/wiki/Part_of_speech) vary between the two corpuses. 
+
+[![Full Word Frequecy]({attach}POSdistribution.png "Distribution of POS")]({attach}POSdistribution.png)
+
+Here we can see that Metal lyics focus much more on...
+
+## Examplehead
+Let's get more specific, and focus on three example bands: [Motorhead](https://en.wikipedia.org/wiki/Mot%C3%B6rhead), [Machinehead](https://en.wikipedia.org/wiki/Machine_Head_%28band%29) and [Diamondhead](https://en.wikipedia.org/wiki/Diamond_Head_%28band%29). BelowI plot the absolute word clouds of each of the bands.I leaveIt as an excersise to the reader to work out which wordcloud belongs to each band.
+
+<div style="overflow:hidden">
+    <a href="{attach}headwords1.png"  style="float:left">
+      <img src="{attach}headwords1.png" alt="Examplehead Word Frequency 1" style="width:200px;border:0;">
+    </a> 
+    <a href="{attach}headwords2.png"  style="float:left">
+      <img src="{attach}headwords2.png" alt="Examplehead Word Frequency 2" style="width:200px;border:0;">
+    </a> 
+    <a href="{attach}headwords3.png"  style="float:left">
+      <img src="{attach}headwords3.png" alt="Examplehead Word Frequency 3" style="width:200px;border:0;">
+    </a>
+</div>
+
+There are some differences, but not a huge amount. The word "see" appears highlyIn all of them. ThisIs not that suprising, although the bands have slightly different styles, they all playIn the same language. What we could askInsteadIs what words areImportant to the topics and style of each band. A nice measure of thisIs the [log-likelihood ratio](https://en.wikipedia.org/wiki/Likelihood-ratio_test) of each word. 
+
+TheInterpretation of the log-likelihood ratioIs that we are comparing two hypothesises: that the word frequencies for each band are drawn from the same distribution or that they are drawn from different distributions. SpecificallyIf for each word we assume that the distributionIs binomial then the ratioIs given by
+
+$$
+L_{w} = N_{w}\log{\frac{N_{w}}{E_{w}}} + \bar{N}_{w}\log{\frac{\bar{N}_{w}}{\bar{E}_{w}}}
+$$
+
+Where $N_{w}$Is number of occurances of word $w$ for a specific band, and $E_{W}$Is the expected occuance of that word, when considering the distribution for all three bands. $\bar{N}_{w}$ and $\bar{E}_{w}$ are the same, but for all words that are not $w$. 
+
+Dispite having a statistical interpretation, it is worth noting that text isn't made up of random variables drawn from a binomial distribution, and this is a huge simplification. That said, the likelihood ratio has the properties we would want from a measure of importance of a given word: it increases with the number of occurances and because of the logarithm of ratio of occurance frequencies, is zero when the word occurs in all documents equally. 
+
+Plotting tag clouds of the word sizes proportional to the log likelihood ratio, we get:
+
+
+<div style="overflow:hidden">
+    <a href="{attach}headwords21.png"  style="float:left">
+      <img src="{attach}headwords21.png" alt="Examplehead WordImportance 1" style="width:200px;border:0;">
+    </a> 
+    <a href="{attach}headwords22.png"  style="float:left">
+      <img src="{attach}headwords22.png" alt="Examplehead WordImportance 2" style="width:200px;border:0;">
+    </a> 
+    <a href="{attach}headwords23.png"  style="float:left">
+      <img src="{attach}headwords23.png" alt="Examplehead WordImportance 3" style="width:200px;border:0;">
+    </a>
+</div>
+
+
+## VectorHead
+
+Log likelihood provides a measure of theImportance of each word to a specific band, but it is not the only one. Another popular measure of wordImportanceIs [term frequency -Inverse document frequency](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) (TF-IDF). The TF-IDFIs a measure of the frequency a word occursIn a document, weighted by theInverse document frequency: the number of documentsIn which that word appears. The basicIdeaIs simple:If a word appearsIn lots of documents,ItIs probably lessImportant then words that appears onlyIn a few documents. Sklearn provides a niceInterface to calculate TF-IDF, so we useIt here. 
+
+We start by collecting together 12,000 songs, by the 113 of the more popular artists in our dataset. For each song, we then count the frequency of how often each word appears. To keep the dataset manageabe, we ignore stop words, and words that occurIn less than 1% of songs. We then weight these term frequencies by theInverse document frequencies. The result is that the lyrics of each song is now represented as a vector of 9872 values. The advantage of this representationIs that a whole host of techniques exist to compare, measure, cluster and describe vectors of real numbers.
+
+We can define a vector that "describes" a band by summing together all the vectors that make up the lyrics of that bands catalog and them normalising the resulting vector to length unity. With these band lyric vectors and song lyric vectors, we can ask questions like: which bands use lyricsIn a similar way to other bands? and, which songs best represent a band? To do this we need to define a measure of similarity between two vectors. A common choice for vectors like thisIs the [cosine distance](https://reference.wolfram.com/language/ref/CosineDistance.html).
+
+Using our previous three example bands, we can ask: which are the three most similar bands, which are the three most similar songs to the band and which words are the mostImportant (in terms of having the highest TF-IDF scores) for each band.
+
+| Band | Similar Bands | Most Representative Songs | MostImportant Words |
+| --- | --- | --- | --- |
+| Motorhead | overkill, helloween, anvil | "Life's A Bitch", "Waiting For The Snake","Desperate For You" | don't, know, ain't |
+| Machinehead | megadeth, soilwork, anthrax | "From This Day", "The Blood, The Sweat, The Tears", "Clenching The Fists Of Dissent" | pain,I'm, strength|
+| Diamondhead | quietriot, rainbow, wasp | "Victim", "It's Electric", "Wrathchild" |I'm, oh, don't|
+
+What's interesting is that while the most representative songs for each band are mostly their own songs, occasionally other bands songs creep in. For example, "Wrathchild", is an Iron Maiden song, not a Diamondhead song. 
+
+To get a clearer idea of what is going on here, let's look at a single song: Motorhead's mighty [Orgasmatron](https://www.youtube.com/watch?v=VdegjWkZW4Q). Below you can see the full lyrics, with each word coloured depending on it's inverse document frequency importance. Words in black aren't included as they are either too common or too rare, and the IDF score runs from red for low to yellow for high.
+
+### Motorhead - Orgasmatron
+
+I am the <span style="color:#ffc900">one</span>, orgasmatron, the outstretched <span style="color:#ff4d00">grasping</span> <span style="color:#ffab00">hand</span></br>my <span style="color:#ff7100">image</span> is of <span style="color:#ff7a00">agony</span>, my <span style="color:#ff5800">servants</span> <span style="color:#ff7900">rape</span> the <span style="color:#ff9e00">land</span></br>obsequious and <span style="color:#ff3f00">arrogant</span>, clandestine and <span style="color:#ff8300">vain</span></br><span style="color:#ff9700">two</span> <span style="color:#ff8f00">thousand</span> <span style="color:#ff9c00">years</span> of <span style="color:#ff8d00">misery</span>, of <span style="color:#ff7e00">torture</span> in my <span style="color:#ffa600">name</span></br><span style="color:#ff5f00">hypocrisy</span> <span style="color:#ffa500">made</span> paramount, <span style="color:#ff5800">paranoia</span> the <span style="color:#ff8300">law</span></br>my <span style="color:#ffa600">name</span> is <span style="color:#ff8000">called</span> <span style="color:#ff7f00">religion</span>, <span style="color:#ff5400">sadistic</span>, <span style="color:#ff8100">sacred</span> <span style="color:#ff7e00">whore</span> .</br></br>i <span style="color:#ff6e00">twist</span> the <span style="color:#ffa600">truth</span>, I <span style="color:#ff8800">rule</span> the <span style="color:#ffbe00">world</span>, my <span style="color:#ff7f00">crown</span> is <span style="color:#ff8000">called</span> <span style="color:#ff7300">deceit</span></br>i am the <span style="color:#ff4e00">emperor</span> of <span style="color:#ffae00">lies</span>, you grovel at my <span style="color:#ff9100">feet</span></br>i <span style="color:#ff5200">rob</span> you and I <span style="color:#ff7900">slaughter</span> you, your <span style="color:#ff5a00">downfall</span> is my <span style="color:#ff6d00">gain</span></br>and <span style="color:#ffb400">still</span> you <span style="color:#ff9700">play</span> the sycophant and <span style="color:#ff5100">revel</span> in you <span style="color:#ffba00">pain</span></br>and all my <span style="color:#ff7100">promises</span> are <span style="color:#ffae00">lies</span>, all my <span style="color:#ffb700">love</span> is <span style="color:#ffa900">hate</span></br>i am the <span style="color:#ff3d00">politician</span>, and I <span style="color:#ff6a00">decide</span> your <span style="color:#ff9b00">fate</span></br></br>i <span style="color:#ff7500">march</span> before a martyred <span style="color:#ffbe00">world</span>, an <span style="color:#ff6100">army</span> for the <span style="color:#ffa400">fight</span></br>i <span style="color:#ff8d00">speak</span> of <span style="color:#ff9100">great</span> heroic <span style="color:#ff9a00">days</span>, of <span style="color:#ff7800">victory</span> and <span style="color:#ff9a00">might</span></br>i <span style="color:#ffa300">hold</span> a <span style="color:#ff4f00">banner</span> <span style="color:#ff5500">drenched</span> in <span style="color:#ffb900">blood</span>, I <span style="color:#ff6800">urge</span> you to be <span style="color:#ff7800">brave</span></br>i <span style="color:#ff8f00">lead</span> you to your <span style="color:#ff8600">destiny</span>, I <span style="color:#ff8f00">lead</span> you to your <span style="color:#ff9700">grave</span></br>your <span style="color:#ff8b00">bones</span> will <span style="color:#ff7300">build</span> my <span style="color:#ff3c00">palaces</span>, your <span style="color:#ffc000">eyes</span> will stud my <span style="color:#ff7f00">crown</span></br>for I am <span style="color:#ff4e00">mars</span>, the <span style="color:#ffb100">god</span> of <span style="color:#ffa600">war</span>, and I will <span style="color:#ff9400">cut</span> you down .</br></br>
+
+
+The first thing to note is that only 72 words are coloured - this means that the vector describing this song is sparse, with most of it's values being zero. 
+
+
+## Exploring the Lyric Space
+Up until now I have been focusing on only three bands because they provide me with a managable examples, however now that we have a measure of similarity between bands we can open things up. We can start to ask whether bands naturally fall into clusters. We can use a technique known as [Hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering) to show how bands use of wordsIn there lyrics fallInto groups. Essencially we start with each bandInIt's own cluster and one by one, join the clusters together, at each step choosing the two which are closest to merge. The resultIs a tree-like structure known as a dendrogram, with the branches of similar bands closer togetherIn the tree. Below I've plotted the dendrogram that results from clustering all 169 bands. 
+
+<a href="{attach}cluster_dendrogram.png">
+  <img src="{attach}cluster_dendrogram.png" alt="Metal Cluster Dendrogram" style="width:50%;">
+</a>
+
+To help explore the diagram aboveIn more depth,I've plottedItIn d3 [here](blahblahblah). By hovering over each node you can get anIdea of what the alogithmIs doing: which are the most representative bands, what words areImportant at that stage of the clustering and which song are most representative.
+
+
+## How wasIt made
+All graphs were producedIn python using [matplotlib](http://matplotlib.org/) and the [seaborn](http://stanford.edu/~mwaskom/software/seaborn/) package.
