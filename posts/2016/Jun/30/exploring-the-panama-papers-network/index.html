@@ -11835,7 +11835,7 @@ jQuery(document).ready(function($) {
 <p>Recently, the The International Consortium of Investigative Journalists (ICIJ) <a href="https://offshoreleaks.icij.org/pages/database">released a dump</a> of some of the information they received as part of the <a href="https://panamapapers.icij.org/">panama papers</a> leak.</p>
 <p>The data released is in the form of a network: a collection of nodes which relate to entities, addresses, officers and intermediaries and a collection of edges which give information about the relationships between these nodes. For a full description of where the data comes from and what the fields mean see data/codebook.pdf in the <a href="https://github.com/ijmbarr/panama-paper-network">repository for this notebook</a>.</p>
 <p>A lot has been said about what is in the Panama Papers. Most of this has been focused around individuals who choose to use the business structures detailed in the leaks. In this post, I take a different look at the data, focusing on the structures that are implied by the Panama Papers, and on how we might be able to use ideas and tools from graph theory to explore these structures.</p>
-<p>My reason for this approach is that the current leak contains over 800,000 nodes and over 1.1 million relationships. Spending a minute looking at each relationship would take over two years, so  automation is the only way to begin to explore a dataset of this size. Automation however, it does have it's limitations - I am not an accountant or business lawyer, and I can't begin to speculate on the usefulness or even interestingness of these results. My guess would be that this approach would need to be combined with both domain specific knowledge and local expertise on the people involved to get the most out of it.</p>
+<p>My reason for this approach is that the current leak contains over 800,000 nodes and over 1.1 million relationships. Spending a minute looking at each relationship would take over two years, so  automation is the only way to begin to explore a dataset of this size. Automation however does have it's limitations - I am not an accountant or business lawyer, and I can't begin to speculate on the usefulness or even the interestingness of these results. My guess would be that this approach would need to be combined with both domain specific knowledge and local expertise on the people involved to get the most out of it.</p>
 <p>This post is written as a jupyter notebook. This should allow anyone to reproduce my results. You can find the <a href="https://github.com/ijmbarr/panama-paper-network">repository for this notebook here</a>. Along with the analysis carried out in this notebook, I use a number of short, home build functions. These are also included in the repository.</p>
 <p>Disclaimer: While I discuss several of the entities I find in the data, I am not accusing anyone of breaking the law.</p>
 <h2 id="Creating-a-Graph">Creating a Graph<a class="anchor-link" href="#Creating-a-Graph">&#182;</a></h2><p>To begin with, I am going to load the nodes and edges into memory using pandas, normalising the names as I go:</p>
@@ -12022,7 +12022,7 @@ Wall time: 3.63 s
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Subgraphs">Subgraphs<a class="anchor-link" href="#Subgraphs">&#182;</a></h2><p>A first question we can ask about the network is whether it is connected. Two nodes are considered connected if there is a path between the nodes. Networkx allows us to do this directly by splitting the graph into connected sub-graphs:</p>
+<h2 id="Subgraphs">Subgraphs<a class="anchor-link" href="#Subgraphs">&#182;</a></h2><p>One of the first questions we can ask about the network is whether it is connected. Two nodes are considered connected if there is a path between the nodes. Networkx allows us to do this directly by splitting the graph into connected sub-graphs:</p>
 
 </div>
 </div>
@@ -22178,9 +22178,9 @@ UDChDgAAoGBCHQAAQMGEOgAAgIL9L2QSrUPyRcSPAAAAAElFTkSuQmCC
 <p>Things are beginning to become crowded. Let's break down what we see happening:</p>
 <p>Again the graph seems to be centred around a intermediate (in this case "kaiser bohler"), which is the intermideary of a number of companies. From these companies (let's use "bunwell investment ltd" as an example), we have some information about their officers. For bunwell, these are "fondation isis enhancement", "mr. antoine e. bohler" and "the bearer". My guess is that here "the bearer" refers to an infamous <a href="https://en.wikipedia.org/wiki/Bearer_bond">bearer bond</a>. For the other two officers, we have registered addresses. Somewhere in Panama for "fondation isis enhancement" and somewhere in Geneva for "mr. antoine e. bohler". We can also see that "mr. antoine e. bohler" is an officer of "swanson group inc.".</p>
 <p>Looking around the graph you will note that the name "mr. antoine e. bohler" appears multiple times in the graph above, sometimes without the title and sometimes with an umlaut. The proximity in the graph would suggest that they are the same person, but without knowing more about how the ICIJ decided to create the nodes of this graph, it is hard to be sure.</p>
-<p>This problem will appears often when you start using data like this. To search a document or a table for specific names (and slight variants) is not that technologically hard. The problem is that names are common, and identifying unique individuals is hard and it often requires in-depth local knowledge to use information like this.</p>
+<p>This problem will appear often when you start using data like this. To search a document or a table for specific names (and slight variants) is not that technologically hard. The problem is that names are common, and identifying unique individuals is hard and it often requires in-depth local knowledge to use information like this.</p>
 <h2 id="The-Main-Network">The Main Network<a class="anchor-link" href="#The-Main-Network">&#182;</a></h2><p>Turning our attention to that largest connected sub-graph, we run into problems. The graph is far too big to consider plotting it and analysing it meaningfully by eye. Instead we need to try and phase our questions in such a way that the computer does the work for us.</p>
-<p>From the graphs we saw above, it looks like the intermediaries tend to sit at the centre of things. Does this hold true in the large graph? To test this, we can find the average degree of each node type, where "degree" is the number of edges coming connected to a node.</p>
+<p>From the graphs we saw above, it looks like the intermediaries tend to sit at the centre of things. Does this hold true in the large graph? To test this, we can find the average degree of each node type, where "degree" is the number of edges connected to a node.</p>
 
 </div>
 </div>
@@ -22299,7 +22299,7 @@ UDChDgAAoGBCHQAAQMGEOgAAgIL9L2QSrUPyRcSPAAAAAElFTkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We can see that the <em>median</em> values of each group aren't that different - 50% of most nodes have only a few edges connected to them. However the large <em>mean</em> of the degree of intermediates suggests that the distribution is highly uneven and long tailed, where there are a small number intermediaries who have a large number of the edges.</p>
+<p>We can see that the <em>median</em> values of each group aren't that different - 50% of most nodes have only a few edges connected to them. However the large <em>mean</em> of the degree of intermediates suggests that the distribution is highly uneven and long tailed where there are a small number intermediaries who have a large number of the edges.</p>
 <p>We can check this by looking at the nodes ten with the largest degree</p>
 
 </div>
@@ -22443,7 +22443,7 @@ UDChDgAAoGBCHQAAQMGEOgAAgIL9L2QSrUPyRcSPAAAAAElFTkSuQmCC
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>It seems I was wrong - the node with the highest degree is an address, but an address for the intermediary immediately following: "portcullis trustnet" (you can read a bit about them in <a href="https://www.theguardian.com/uk/2013/apr/04/secrets-offshore-hideaways-laid-bare">this</a> Guardian article). It looks like this particular address is the registered address for over 37,000 entities.</p>
 <p>We see a similar pairing for the intermediate/address of "unitrust corporate services ltd". The next few intermediates that appear are "mossack fonseca &amp; co", "prime corporate solutions sarl", "offshore business consultant (int'l) limited" and "sealight incorporations limited".</p>
-<p>Given that the Intermediary appears to be middleman that helps create the entities, it is easy to consider that each one could be linked to many entities. What isn't immediately clear is how they might be linked together. Let's take a look at the shortest path between "portcullis trustnet (bvi) limited" and "unitrust corporate services ltd.":</p>
+<p>Given that the Intermediary appears to be a middleman that helps create the entities, it is easy to consider that each one could be linked to many entities. What isn't immediately clear is how they might be linked together. Let's take a look at the shortest path between "portcullis trustnet (bvi) limited" and "unitrust corporate services ltd.":</p>
 
 </div>
 </div>
@@ -27836,7 +27836,7 @@ UrQAAAAASUVORK5CYII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This chain is more convoluted, but it looks like a series of companies ties together by common shareholders or directors.</p>
+<p>This chain is more convoluted, but it looks like a series of companies tied together by common shareholders or directors.</p>
 <h2 id="Degree-Distribution">Degree Distribution<a class="anchor-link" href="#Degree-Distribution">&#182;</a></h2><p>We can also ask how the degree of the graph is distributed.</p>
 
 </div>
@@ -28065,8 +28065,8 @@ RU5ErkJggg==
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>If we squint, it might look like a power law distribution, giving a <a href="https://en.wikipedia.org/wiki/Scale-free_network">scale free graph</a>. But we'd have to be squinting.</p>
 <p>The main result is that the distribution is long tailed - a small number of nodes are involved in most of the links.</p>
-<h2 id="Node-Importance">Node Importance<a class="anchor-link" href="#Node-Importance">&#182;</a></h2><p>We are starting to explore how entities are connected together. Intuitively, you might expect nodes with a high degree to be the most "important" - that they sit at the centre of the graph, and are closely linked to every other node. However, other measures exist.</p>
-<p>A common measure for importance of a node is its <a href="https://en.wikipedia.org/wiki/PageRank">page rank</a>. Page rank is one of the measures used by google to determine the importance of a webpage, and is named after Larry Page. Essentially, if we were to preform a randomly walk through a graph, jumping to a random page every now and then, the time spent on each node is proportional to its page-rank.</p>
+<h2 id="Node-Importance">Node Importance<a class="anchor-link" href="#Node-Importance">&#182;</a></h2><p>We are starting to explore how entities are connected together. Intuitively, you might expect nodes with a high degree to be the most "important" - that they sit at the centre of the graph and are closely linked to every other node. However, other measures exist.</p>
+<p>A common measure for importance of a node is its <a href="https://en.wikipedia.org/wiki/PageRank">page rank</a>. Page rank is one of the measures used by google to determine the importance of a webpage, and is named after Larry Page. Essentially, if we were to perform a random walk through a graph, jumping to a random page every now and then, the time spent on each node is proportional to its page-rank.</p>
 <p>We can calculate the page rank for each node below, and look at the top ranked nodes:</p>
 
 </div>
@@ -28266,7 +28266,7 @@ Wall time: 4.06 s
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>As it turns out, page rank picks out similar nodes to looking at degree.</p>
-<p>If I were interested in identifying the main playing in setting up offshore companies, these are the intermediates that I would start looking at first.</p>
+<p>If I were interested in identifying the main players in setting up offshore companies, these are the intermediates that I would start looking at first.</p>
 <p>So what happens if we look at the page rank, but just for entities?</p>
 
 </div>
@@ -33726,8 +33726,8 @@ xBTqRERERERETEyhTkRERERExMT+H4Mzc6D9ykvBAAAAAElFTkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It looks like we just end up with the entities that have lots of shareholders who uses one of our high ranking intermediates.</p>
-<h1 id="Clustering">Clustering<a class="anchor-link" href="#Clustering">&#182;</a></h1><p>Another measurement we can make of the "shape" of a graph is its <a href="https://en.wikipedia.org/wiki/Clustering_coefficient">clustering coefficient</a>. For each node, this measures how connected its neighbours are with each other. You can think of it as a measure of the local structure of the graph: whether a nodes neighbour are neighbours of each other.</p>
+<p>It looks like we just end up with the entities that have lots of shareholders and who use one of the high ranking intermediates.</p>
+<h1 id="Clustering">Clustering<a class="anchor-link" href="#Clustering">&#182;</a></h1><p>Another measurement we can make of the "shape" of a graph is its <a href="https://en.wikipedia.org/wiki/Clustering_coefficient">clustering coefficient</a>. For each node, this measures how connected its neighbours are with each other. You can think of it as a measure of the local structure of the graph: what fraction of a nodes neighbours are also neighbours of each other.</p>
 
 </div>
 </div>
@@ -34087,7 +34087,7 @@ TkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>As it turn out, there isn't much structure. Most nodes have clustering coefficients of zero. The few that have non-zero values tend to have low degrees. This means that the panama paper network isn't an example of a small world network. To see what's happening in the few non-zero cases, we can look at an example sub-graph below:</p>
+<p>As it turns out, there isn't much structure. Most nodes have clustering coefficients of zero. The few that have non-zero values tend to have low degrees. This means that the panama paper network isn't an example of a small world network. To see what's happening in the few non-zero cases, we can look at an example sub-graph below:</p>
 
 </div>
 </div>
@@ -35723,7 +35723,7 @@ AAAnRqgDAAAAACf2/wCQ6p261nuqWAAAAABJRU5ErkJggg==
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Removing two thirds of the nodes breaks this graph into lots of smaller sub-graphs. Most of these graphs are uninteresting and simply reflect that one company is owned by a large number of shareholder. Consider the graph below:</p>
+<p>Removing two thirds of the nodes breaks this graph into lots of smaller sub-graphs. Most of these graphs are uninteresting and simply reflect that one company is owned by a large number of shareholders. Consider the graph below:</p>
 <p>(Note: we are now looking at a "directed" graph. The edges are slightly wider at one end to represent their directionality)</p>
 
 </div>
@@ -43079,9 +43079,9 @@ DgAAAAAMRqgDAAAAAIMR6gAAAADAYP8P8VpK8jPbPzwAAAAASUVORK5CYII=
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>It is surprisingly short.</p>
-<p>And with that, I’m finished my initial explorations.</p>
-<p>I'd like to reiterate that without prior knowledge of this sort of network, it is hard to know what constitutes an "interesting" business/entities structure, or what might be the sign of potentially criminal/immoral behaviour. My guess is that no single measure captures it completely, but rather we could combine multiple measure, and some machine learning to automatically identify those areas for future inquire. In fact, I'd be surprised if this wasn't already being done at somewhere.</p>
-<p>That's about all I have to say for now on this network. I'm sure there is more that can be done, and interesting questions that can be asked an answered, but I lack the background required to know where to start. If this is something you are interested in and have some ideas about where to go, <a href="mailto:iain@degeneratestate.org">please get in touch</a>.</p>
+<p>And with that, I have finished my explorations.</p>
+<p>I'd like to reiterate that without prior knowledge of this sort of network, it is hard to know what constitutes an "interesting" business/entities structure, or what might be the sign of potentially criminal/immoral behaviour. My guess is that no single measure captures it completely, but rather we could combine multiple measures, and some machine learning to automatically identify those areas for future inquiry. In fact, I'd be surprised if this wasn't already being done somewhere.</p>
+<p>That's about all I have to say for now on this network. I'm sure there is more that can be done, and interesting questions that can be asked and answered, but I lack the background required to know where to start. If this is something you are interested in and have some ideas about where to go, <a href="mailto:iain@degeneratestate.org">please get in touch</a>.</p>
 <h2 id="How-it-was-Made">How it was Made<a class="anchor-link" href="#How-it-was-Made">&#182;</a></h2><p>This post was created as a jupyter notebook. You can find the notebook, the data and code used to create it <a href="https://github.com/ijmbarr/panama-paper-network">here</a>.</p>
 
 </div>
