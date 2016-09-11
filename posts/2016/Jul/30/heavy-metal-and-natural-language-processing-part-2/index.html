@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8" />
-        <title>Degenerate State</title>
+        <title>Heavy Metal and Natural Language Processing - Part 2</title>
 
             
 <style type="text/css">
@@ -11807,30 +11807,308 @@ jQuery(document).ready(function($) {
 		    </header><!-- /#banner -->
 
 <section id="content" class="body">
-<h1>Archives for Degenerate State</h1>
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/" rel="bookmark"
+           title="Permalink to Heavy Metal and Natural Language Processing - Part 2">Heavy Metal and Natural Language Processing - Part 2</a></h1>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="ijmbarr">Tweet</a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+    </header>
 
-<dl>
-    <dt>12/09/2016</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2016/Sep/12/heavy-metal-and-natural-language-processing-part-2/">Heavy Metal and Natural Language Processing - Part 2</a></dd>
-    <dt>30/06/2016</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2016/Jun/30/exploring-the-panama-papers-network/">Exploring the Panama Papers Network</a></dd>
-    <dt>15/06/2016</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2016/Jun/15/extracting-tabular-data-from-pdfs/">Extracting Tabular Data from PDFs</a></dd>
-    <dt>01/05/2016</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2016/May/01/visualising-hypercubes/">Visualising Hypercubes</a></dd>
-    <dt>20/04/2016</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2016/Apr/20/heavy-metal-and-natural-language-processing-part-1/">Heavy Metal and Natural Language Processing - Part 1</a></dd>
-    <dt>17/01/2016</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2016/Jan/17/mastermind/">Mastermind</a></dd>
-    <dt>15/02/2015</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/">UK General Elections - part2</a></dd>
-    <dt>20/01/2015</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/">UK General Elections - part1</a></dd>
-    <dt>10/01/2015</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2015/Jan/10/games-of-life/">Games of Life</a></dd>
-    <dt>05/01/2015</dt>
-    <dd><a href="http://www.degeneratestate.org/posts/2015/Jan/05/first-post/">First Post</a></dd>
-</dl>
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-07-30T00:00:00+01:00">
+                Published: 30/07/2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         Iain
+        </address>
+
+</footer><!-- /.post-info -->		<br>
+      <p>In a <a href="">previous post</a>, I explored a corpus of metal lyrics in various ways. Most of these techniques focused on the word frequency within each song, and measures derived from the word frequency. These measures captured some of the similarity between bands that we would naturally expect.</p>
+<p>In this part I am going to look at a different area of natual language processing: Language Generation, or how can we using our existing lyrics to generate lyrics to new songs. This is an inherently different process from what we looked at before and simply producing words with a frequency similar to existing songs won't be enough. We are going to have to try and capture something of the structure of language to generate anything resembling meaningful lyrics.</p>
+<h2>Disclaimer 0</h2>
+<p>My previous post generated more interested then I expected given my motivation for writing it was understanding various natural language processing techniques. As such it might come across as rather dry and mathematical. This post continues in the same vein. My main goal for writing this post is to gain an understanding of language modelling and the theoretical details around it. As such, some might find it uneccessarily technical. If you want to jump straight to generating metal lyrics, head here.</p>
+<h2>Disclaimer 1</h2>
+<p>As in my previous post I refer to lyrics of certain bands as being "Metal". I know some people have strong feelings about how genres are defined, and would probably disagree with me about some of the bands I call metal in this post. I call these band "Metal" here for the sake of brevity only, and I apologise in advance.</p>
+<h2>Disclaimer 2</h2>
+<p>The subject matter of this post is Metal lyrics. The subject matter can be <a href="www.darklyrics.com/lyrics/carcass/reekofputrefaction.html">Gory</a>, <a href="www.darklyrics.com/lyrics/behemoth/thesatanist.html">Satanic</a>, <a href="www.darklyrics.com/lyrics/abigail/foreverstreetmetalbitch.html">Mysenoginistic</a> and, while I haven't found any examples in my dataset, given the <a href="https://www.theguardian.com/music/2016/feb/01/metal-community-condemns-racism-phil-anselmo-nazi-salute-white-power">personal views of some artists</a> maybe even racist.</p>
+<p>I'm not going to defend the views represented in the lyrics. They don't represent what I believe. But they are what they are, and they are the dataset explored here. As we rely on this data to generate new text, the generated text may offend you. It may or may note be of confort to know that the algorithm that generates the text has no notion of its sematic mean - that is provided only by the humans that wrote the original songs. </p>
+<h2>Language Models</h2>
+<p>To begin, let's make it clear what we hope to accomplish here. We want to "generate" the lyrics to a song randomly. This may seem like a dunting task - writing lyrics for humans is hard. Lyrics have to be coherent (but not too coherent), they have a topic and a structure and maybe event tell a story. They convey emotions and thoughts and ideas. How can we possibily reproduce this with a computer?</p>
+<p>The short answer is we can't (currently). Instead we simplify the problem.</p>
+<p>When we talk about randomly generating something, we usually start by defining a probability distribution over that thing. Mathematically we could write this as <span class="math">\(P(x_{0}, x_{1}, x_{2}, ... , x_{n})\)</span>, where the <span class="math">\(x_{i}\)</span> are the tokens in our sequence (in this case, either words or characters. For now I'm going to keep the distinction ambigious. Either way we are just generating a sequence of descrete <em>things</em>). This probabiliy distribution is known as a <a href="https://en.wikipedia.org/wiki/Language_model">language model</a> - a measure of how likely some sequence is to appear. </p>
+<p>This probability distribution might sound strange. It is a measure of how likley a bunch of words are to be the lyrics a metal song. Depending on <a href="https://xkcd.com/1132/">how you think about probability</a>, this might not make sense. If it helps, you might like to picture a room of metal lyrics writing monkeys, typing on lyrics on typewriters forever. Each possible sequence of character will appear many times, and what the langauge model tries to measure is how often each of these appears relative to each other. We would hope that the result is the line "Burn cries eternity" being ranked higher than "particularly indicated secretary".</p>
+<p>However you think of them, working with languages models has the advantage that there are well known techniques for building and sampling from them. </p>
+<h2>Bayesian Beginnings</h2>
+<p>One difficulty in working with language models is that they describe a sequence, and length this sequence can vary. Some of our first steps in trying to build a language model will be to get around this issue. To begin, we rewrite the distribution using Bayes rule to get</p>
+<div class="math">$$
+P(x_{0}, x_{1}, x_{2}, ... , x_{n}) = P(x_{n}|x_{0}, x_{1}, ... , x_{n-1})P(x_{0}, x_{1}, ... , x_{n-1})
+$$</div>
+<p>Giving us the probability of the sequence in terms of the probability of the final symbol occuring, given all prior symbols and the probability of all prior symbols occuring. We can repeat this step <span class="math">\(n\)</span> times to get</p>
+<div class="math">$$
+P(x_{0}, x_{1}, x_{2}, ... , x_{n}) \propto P(x_{n}|x_{0}, x_{1}, ... , x_{n-1})P(x_{n-1}|x_{0}, x_{1}, x_{2}, ... , x_{n-2}) ... P(x_{0})
+$$</div>
+<p>In this form, the task of building a language model becomes one of building a model for the probability of a symbol appearing, given all the preceeding symbols that have appeared. It may not seem like this simplifies the problem as we have replaced a single expression with <span class="math">\(n\)</span> expressions, however, once we make a few approximations things will simplify.</p>
+<h2>Markov Approximation</h2>
+<p>A simple yet powerful approach is known as the <a href="https://en.wikipedia.org/wiki/Markov_property">Markov Approximation</a>, which assumes that future state of a system depends only on its current state. In the notation of our language model, we can consider the "current state" to be a fixed number of symbols, and the future state to be the next symbol, or:</p>
+<div class="math">$$
+P(x_{n}|x_{0}, x_{1}, ... , x_{n-1}) \approx P(x_{n+1}|x_{n}, x_{n-1}, ..., x_{n-k})
+$$</div>
+<p>Where the next symbol depends on the <span class="math">\(k\)</span> previous symbols.</p>
+<p>The advantage of this approximation is that it removes the dependance of the <em>length</em> of the preceeding sequence from <span class="math">\(P\)</span>. As we will see later, this will also be a disadvantage. </p>
+<p>In this form, the problem of building a language model becomes one of function approximation: we have a fixed input (the <span class="math">\(k\)</span> preceeding characters) and a fixed output (the next symbol). We also have example input-output pairs "sampled" from this distribution. Once we have this approximation generation is easy: we start with one state, and then choose the token by sampling from the distribution our function gives us. We then use this to form the next state and repeat some termination condition.</p>
+<h2>Maximum Likelihood Models</h2>
+<p>As function approximations go, creating a simple lookup table is a good first guess: for one input, we look at all outputs we get, and creating a probability distribution from the frequency of each occurance. Or</p>
+<div class="math">$$
+P(x_{n+1}|x_{n},...,x_{n-k}) = \frac{#(x_{n+1}, x_{n}, ... , x_{n-k})}{#(x_{n}, ... , x_{n-k})}
+$$</div>
+<p>Where <span class="math">\(#(x)\)</span> is a count of how often the symbols <span class="math">\(x\)</span> appear in our training set. This approach is often called a "Markov Chain", but technically this name would apply to any language model that makes the Markov approximation. Instead a better name would be <a href="http://nbviewer.jupyter.org/gist/yoavg/d76121dfde2618422139">"unsmoothed maximum-liklihood</a> language model. The name comes from the fact that the formula above is the <a href="">maximum likelihood</a> estimator for <span class="math">\(P(x_{n+1}|x_{n},...,x_{n-k})\)</span>, and that no attempt has been made at smoothing (we'll discuss what smoothing is later).</p>
+<p>Let's look an example. Consider the first two lines to Iron Maiden's <a href="https://www.youtube.com/watch?v=WxnN05vOuSM">Number of the Beast</a>. Mapping out the connections between words we get:</p>
+<p><a href="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/666.png">
+  <img src="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/666.png" alt="Number of the beast Markov Chain" style="width:50%;">
+</a></p>
+<p>Here each word represents a "state", and the arrows show the words that at some point in the lyrics follow that word. We can use this as a rudementry language mode that we can generate lyrics from. To do this, we start at one node, and keep following the arrows until we have enough words. Imagine starting at with the word "I", following one path leads to "I left alone, my mind was blank...", the actual first line of the song. We could have followed other paths, for example: "I saw that night was blank..." or "I see can I see can I see can". </p>
+<h2>Markov Metal Machine</h2>
+<p>Hopefully this will make more sense if we look at some examples of text generating from this system. I'm going to call it the "Markov Metal Machine". To train it, I am going to use the lyrics from the 119 more popular bands in my dataset (the same as those used in my previous post). This dataset contains 3.5 million words, and 14 million characters. </p>
+<p>Before we can train our model, we need to make a decision about what exactly we are going to consider a "state". This is were we have to choose what our "tokens" mean. A sensible choice for this is either a fixed number of characters or a fixed number of words. In advance, it is not obvious what the best choice is, so let's try a few difference ideas and see what comes out. Before that let's step through one example: the two character state.</p>
+<p>To start our generation we are going to need an initial state. Imagine we wanted the first line of our song to be "I lived alone, my mind was blank". The last two character "nk" form the state we use to generate the next characters, giving distribution:</p>
+<p><a href="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/nk_nextstate.png">
+  <img src="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/nk_nextstate.png" alt="Probability distribution of the character following 'nk'" style="width:50%;">
+</a></p>
+<p>The most likely next character is a new line, as it is in the original Iron Maiden song, but there are a range of options. Remember to get these probabilities, all we did was look through all the lyrics and every time we saw the characters "nk", we counted how many times we saw the next character. Imagine we sampled a character from this distribution, and picked "i". We add this to our generated text to get "I lived alone, my mind was blanki" and set our current state to be "ki", which has the distribution:</p>
+<p><a href="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/ki_nextstate.png">
+  <img src="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/ki_nextstate.png" alt="Probability distribution of the character following 'ki'" style="width:50%;">
+</a></p>
+<p>So the most likely next state is "n". We can keep repeating this until we have a complete set of lyrics. I have done this for a number of different definitions of "state" below:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Generated Text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 characters</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blankm</span><span style="color:#2ca02c">ati i</span><span style="color:#d62728">pmio</span><span style="color:#9467bd">r  ar</span><span style="color:#8c564b"><br>lia </span><span style="color:#e377c2"> ioo</span><span style="color:#7f7f7f">h lt</span><span style="color:#bcbd22">i[</span><span style="color:#17becf">END]</span></p></td>
+</tr>
+<tr>
+<td>2 characters</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank </span><span style="color:#2ca02c">outris</span><span style="color:#d62728"> ise</span><span style="color:#9467bd">ed<br><br>thed</span><span style="color:#8c564b"> i come...</span><span style="color:#e377c2"><br>i'm inst </span><span style="color:#7f7f7f">ke pe)</span><span style="color:#bcbd22"><br>ife</span><span style="color:#17becf"><br>ase</span><span style="color:#1f77b4">l mett</span><span style="color:#ff7f0e">leshig</span><span style="color:#2ca02c">her, con<br></span><span style="color:#d62728">hous t</span><span style="color:#9467bd">o i kno </span><span style="color:#8c564b">kinsi</span><span style="color:#e377c2">re lifee</span><span style="color:#7f7f7f">d!<br><br>nown</span><span style="color:#bcbd22"><br>al n</span><span style="color:#17becf">a whe </span><span style="color:#1f77b4">of your bin</span><span style="color:#ff7f0e">gs ou,</span><span style="color:#2ca02c"> your fight. </span><span style="color:#d62728">diany</span><span style="color:#9467bd"><br>ify</span><span style="color:#8c564b"> fori</span><span style="color:#e377c2">deane</span><span style="color:#7f7f7f">a for o</span><span style="color:#bcbd22">nd cryinw</span><span style="color:#17becf">elt ta</span><span style="color:#1f77b4">lley re</span><span style="color:#ff7f0e">-thot</span><span style="color:#2ca02c"> way me</span><span style="color:#d62728"> hoes</span><span style="color:#9467bd"> th m</span><span style="color:#8c564b">usell</span><span style="color:#e377c2"> my watt</span><span style="color:#7f7f7f">eand m</span><span style="color:#bcbd22">y<br><br>beft</span><span style="color:#17becf"> ed a</span><span style="color:#1f77b4">ppir</span><span style="color:#ff7f0e">, you will<br></span><span style="color:#2ca02c">eaget</span><span style="color:#d62728"> that kin,</span><span style="color:#9467bd"> thend</span><span style="color:#8c564b"> anq</span><span style="color:#e377c2">ue,<br>ann</span><span style="color:#7f7f7f">aperem</span><span style="color:#bcbd22">e crack of s</span><span style="color:#17becf">pere </span><span style="color:#1f77b4">wantall h</span><span style="color:#ff7f0e">e bleap</span><span style="color:#2ca02c">ervick</span><span style="color:#d62728">ing ou </span><span style="color:#9467bd">and thav</span><span style="color:#8c564b">es of me t</span><span style="color:#e377c2">hantor</span><span style="color:#7f7f7f"> ma, a</span><span style="color:#bcbd22">rkno</span><span style="color:#17becf"> men th<br></span><span style="color:#1f77b4">ime alow</span><span style="color:#ff7f0e"> you'rea</span><span style="color:#2ca02c">ry, ing</span><span style="color:#d62728"> onee</span><span style="color:#9467bd"> lood</span><span style="color:#8c564b"> sing se</span><span style="color:#e377c2">l ande</span><span style="color:#7f7f7f"> now you<br></span><span style="color:#bcbd22">make na</span><span style="color:#17becf">gaill</span><span style="color:#1f77b4"> free wis</span><span style="color:#ff7f0e">-crue</span><span style="color:#2ca02c">s of thing </span><span style="color:#d62728">thermin</span><span style="color:#9467bd"> darn r</span><span style="color:#8c564b">o</span></p></td>
+</tr>
+<tr>
+<td>4 characters</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank<br>t</span><span style="color:#2ca02c">he greath</span><span style="color:#d62728"> your coul</span><span style="color:#9467bd">d've sen</span><span style="color:#8c564b">sion<br>let thi</span><span style="color:#e377c2">ng boy co</span><span style="color:#7f7f7f">mmit ai</span><span style="color:#bcbd22">n't its</span><span style="color:#17becf"> me back witho</span><span style="color:#1f77b4">ut of the will</span><span style="color:#ff7f0e"> rein i</span><span style="color:#2ca02c">nsanity<br>lov</span><span style="color:#d62728">e me to k</span><span style="color:#9467bd">now what it?</span><span style="color:#8c564b"> -- be f</span><span style="color:#e377c2">olds hig</span><span style="color:#7f7f7f">hways y</span><span style="color:#bcbd22">ou the pra</span><span style="color:#17becf">y steel so</span><span style="color:#1f77b4"> i am not dep</span><span style="color:#ff7f0e">rival<br>hu</span><span style="color:#2ca02c">r the black o</span><span style="color:#d62728">f baal will d</span><span style="color:#9467bd">eath<br>just was</span><span style="color:#8c564b"> are night<br></span><span style="color:#e377c2"><br>this slo</span><span style="color:#7f7f7f">w<br>why do n</span><span style="color:#bcbd22">ow<br><br>natu</span><span style="color:#17becf">re in than</span><span style="color:#1f77b4"> mills on</span><span style="color:#ff7f0e"> he's mos</span><span style="color:#2ca02c">t in a o</span><span style="color:#d62728">ne stai</span><span style="color:#9467bd">ns the sai</span><span style="color:#8c564b">nt to mor</span><span style="color:#e377c2">e<br>could not h</span><span style="color:#7f7f7f">ole, wh</span><span style="color:#bcbd22">ere<br>make tha</span><span style="color:#17becf">t wherevea</span><span style="color:#1f77b4">led by sa</span><span style="color:#ff7f0e">ved in tune</span><span style="color:#2ca02c"> a close t</span><span style="color:#d62728">he fire de</span><span style="color:#9467bd">ath fire </span><span style="color:#8c564b">clock c</span><span style="color:#e377c2">lose ever </span><span style="color:#7f7f7f">rule<br><br>c</span><span style="color:#bcbd22">all the stay</span><span style="color:#17becf">ed, rel</span><span style="color:#1f77b4">ess was dro</span><span style="color:#ff7f0e">wn acce</span><span style="color:#2ca02c">lessed and w</span><span style="color:#d62728">or</span></p></td>
+</tr>
+<tr>
+<td>8 characters</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank<br>i s</span><span style="color:#2ca02c">hould ever fo</span><span style="color:#d62728">rget, i wont</span><span style="color:#9467bd"> look me in tr</span><span style="color:#8c564b">oubles, yes it </span><span style="color:#e377c2">is)<br>(oh, oh, oh<br></span><span style="color:#7f7f7f">jennings' fleet so</span><span style="color:#bcbd22">on to be t</span><span style="color:#17becf">rusted,<br><br>where d</span><span style="color:#1f77b4">eep with thr</span><span style="color:#ff7f0e">ill-seeking f</span><span style="color:#2ca02c">or answers<br>now</span><span style="color:#d62728"> and the flas</span><span style="color:#9467bd">k.[</span><span style="color:#8c564b">END]</span></p></td>
+</tr>
+<tr>
+<td>16 characters</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank<br>i needed time to think to get the memories from a</span><span style="color:#2ca02c"> prior supreme darker age<br><br>thy fallen thou shall rise<br><br>into aeons of the dark supreme<br>a ride on the qliphotic stream<br>t</span><span style="color:#d62728">he depths in mind where visions dwell<br>projections of an open shell<br><br>into remembrance we transcend<br>into memories from t</span><span style="color:#9467bd">he past i can see through y</span><span style="color:#8c564b">our disguise,<br>go ahead and plead, begging g</span><span style="color:#e377c2">od for mercy[</span><span style="color:#7f7f7f">END]</span></p></td>
+</tr>
+<tr>
+<td>24 characters</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank<br>i needed time to think to get the memories from my mind<br><br>what did i see can i believe that what i saw<br>that night was real and not just fantasy<br><br>just what i saw in my old dreams were they<br>reflections of my warped mind staring back at me<br><br>'cos in my dream it's always there the evil face that twists my mind<br>and brings me to despair<br><br>the night was black was no use holding back<br>'cos i just had to see was someone watching me<br>in the mist dark figures move and twist<br>was this all for real or some kind o</span></p></td>
+</tr>
+<tr>
+<td>0 words</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank </span><span style="color:#2ca02c">against pa</span><span style="color:#d62728">tient be</span><span style="color:#9467bd">aten bl</span><span style="color:#8c564b">ood? </span><span style="color:#e377c2">is<br>time r</span><span style="color:#7f7f7f">emain com</span><span style="color:#bcbd22">e lost<br>my t</span><span style="color:#17becf">he life's a</span><span style="color:#1f77b4"><br><br>greet a</span><span style="color:#ff7f0e">s bend i</span><span style="color:#2ca02c"> face me f</span><span style="color:#d62728">eel<br>born we</span><span style="color:#9467bd">'ll the </span><span style="color:#8c564b">worse wha</span><span style="color:#e377c2">t<br>claws</span><span style="color:#7f7f7f"><br>the dead i'</span><span style="color:#bcbd22">m shouldn</span><span style="color:#17becf">'t dam</span><span style="color:#1f77b4">ned nor</span><span style="color:#ff7f0e">th feel r</span><span style="color:#2ca02c">ule fl</span><span style="color:#d62728">esh<br>love h</span><span style="color:#9467bd">and life,</span><span style="color:#8c564b"><br>oohh </span><span style="color:#e377c2">keep let </span><span style="color:#7f7f7f">should her</span><span style="color:#bcbd22"> burning wha</span><span style="color:#17becf">t turns you p</span><span style="color:#1f77b4">lan des</span><span style="color:#ff7f0e">troyed tha</span><span style="color:#2ca02c">t fed they</span><span style="color:#d62728">'re the<br>o</span><span style="color:#9467bd">vercome tr</span><span style="color:#8c564b">aits you b</span><span style="color:#e377c2">ut the longer</span><span style="color:#7f7f7f"> magna t</span><span style="color:#bcbd22">he more ch</span><span style="color:#17becf">eering sw</span><span style="color:#1f77b4">ord ton</span><span style="color:#ff7f0e">ight pea</span><span style="color:#2ca02c">ce out d</span><span style="color:#d62728">eath<br>aft</span><span style="color:#9467bd">er did? </span><span style="color:#8c564b">i vei</span><span style="color:#e377c2">n<br>can it'</span><span style="color:#7f7f7f">s said, and m</span><span style="color:#bcbd22">yself pou</span><span style="color:#17becf">nding of<br></span><span style="color:#1f77b4">to tig</span><span style="color:#ff7f0e">ht that's r</span><span style="color:#2ca02c">ules<br>.</span><span style="color:#d62728"> for<br><br><br></span><span style="color:#9467bd">maybe, your</span><span style="color:#8c564b"><br>burn we</span><span style="color:#e377c2">'re is</span><span style="color:#7f7f7f"> cat ou</span><span style="color:#bcbd22">t headi</span><span style="color:#17becf">ng!<br><br>da</span><span style="color:#1f77b4">mn<br>g</span><span style="color:#ff7f0e">rave don</span><span style="color:#2ca02c">'t feel az</span><span style="color:#d62728">agthoth </span><span style="color:#9467bd">we fas</span><span style="color:#8c564b">ter burni</span><span style="color:#e377c2">ng the<br>h</span><span style="color:#7f7f7f">ow with that h</span><span style="color:#bcbd22">ead the.</span><span style="color:#17becf"><br><br>what f</span><span style="color:#1f77b4">ighting i </span><span style="color:#ff7f0e">bleak do</span><span style="color:#2ca02c">n't exh</span><span style="color:#d62728">austed on</span><span style="color:#9467bd">e (for [</span><span style="color:#8c564b">END] </span></p></td>
+</tr>
+<tr>
+<td>1 words</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank </span><span style="color:#2ca02c">into the pres</span><span style="color:#d62728">sure's getting me s</span><span style="color:#9467bd">omething to k</span><span style="color:#8c564b">now i go<br></span><span style="color:#e377c2">and thyme<br></span><span style="color:#7f7f7f">goodnight<br>i a</span><span style="color:#bcbd22">m i can w</span><span style="color:#17becf">e don't know o</span><span style="color:#1f77b4">ne thing is s</span><span style="color:#ff7f0e">haking<br>in</span><span style="color:#2ca02c"> number eight!</span><span style="color:#d62728"><br>by<br>d</span><span style="color:#9467bd">arkness [</span><span style="color:#8c564b">END] </span></p></td>
+</tr>
+<tr>
+<td>2 words</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank<br>i w</span><span style="color:#2ca02c">ill go down<br><br>o</span><span style="color:#d62728">ch blommorna dr<br><br></span><span style="color:#9467bd">i tear,<br></span><span style="color:#8c564b">bring us down, </span><span style="color:#e377c2">you get your kicks </span><span style="color:#7f7f7f">in<br>another day<br></span><span style="color:#bcbd22">nothing changes<br>i</span><span style="color:#17becf">n your own blood!</span><span style="color:#1f77b4"><br><br>soldier s</span><span style="color:#ff7f0e">erving the one y</span><span style="color:#2ca02c">ou and hurt t</span><span style="color:#d62728">hat i said that s</span><span style="color:#9467bd">he's got come-<br></span><span style="color:#8c564b">a young boy and i</span><span style="color:#e377c2">'ll be your lea</span><span style="color:#7f7f7f">der.<br><br>se</span><span style="color:#bcbd22">cretly my eyes<br></span><span style="color:#17becf">where do i gi</span><span style="color:#1f77b4">ve and take m</span><span style="color:#ff7f0e">y time to ge</span><span style="color:#2ca02c">t there soon<br><br>t</span><span style="color:#d62728">he one who begot the earth </span><span style="color:#9467bd">grew weary and t</span><span style="color:#8c564b">he passion and all tho</span><span style="color:#e377c2">se whose souls are b</span><span style="color:#7f7f7f">anned, these t</span><span style="color:#bcbd22">ears from your f</span><span style="color:#17becf">allen walls<br>a</span><span style="color:#1f77b4">re there no l</span><span style="color:#ff7f0e">ove did flow in thee<br><br></span><span style="color:#2ca02c">let your body a</span><span style="color:#d62728">nd soul of i</span><span style="color:#9467bd">mpurity!<br><br>p</span><span style="color:#8c564b">hosphorescent glow<br>s</span><span style="color:#e377c2">piral city architect, i s</span><span style="color:#7f7f7f">wear i'm gonna </span><span style="color:#bcbd22">take you where n</span><span style="color:#17becf">ecessary<br>die w</span><span style="color:#1f77b4">e won't forget<br>t</span><span style="color:#ff7f0e">hat life has b</span><span style="color:#2ca02c">een with me and b</span><span style="color:#d62728">ite?<br>o</span><span style="color:#9467bd">pen up your eyes and j</span><span style="color:#8c564b">agged antler<br><br>t</span><span style="color:#e377c2">here's no rescue<br>a</span><span style="color:#7f7f7f">tlantis will-</span><span style="color:#bcbd22"><br>from my youth<br></span><span style="color:#17becf">we are, never h</span><span style="color:#1f77b4">ere in space<br>e</span><span style="color:#ff7f0e">very curve and cavity<br>y</span><span style="color:#2ca02c">our kiss.<br>t</span><span style="color:#d62728">hough </span></p></td>
+</tr>
+<tr>
+<td>4 words</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank<br>i s</span><span style="color:#2ca02c">hould've known<br>i hold it back but somehow<br>there is someone else<br>another stranger me<br>another stranger me </span><span style="color:#d62728">[END] </span></p></td>
+</tr>
+<tr>
+<td>7 words</td>
+<td><p><span style="color:#ff7f0e">i left alone my mind was blank<br>i needed time to think to get the memories from my mind<br><br>what did i see can i believe that what i saw<br>that night was real and not just fantasy<br><br>just what i saw in my old dreams were they<br>reflections of my warped mind staring back at me<br><br>'cos in my dream it's always there the evil face that twists my mind<br>and brings me to despair<br><br>the night was black was no use holding back<br>'cos i just had to see was someone watching me<br>in the mist dark figures move and twist<br>was this all for real or some kind of hell<br>666 the number of the beast<br>hell and fire was spawned to be released<br><br>torches blazed and sacred chants were praised<br>b</span><span style="color:#2ca02c">lood on your face you big disgrace<br><br>a strand of silver hanging through the sky<br>touching more than you can see<br>appears like a wonder without any move<br>gonna get close, closer to you<br><br>abandoned land come on in child take my hand<br>hear </span></p></td>
+</tr>
+</tbody>
+</table>
+<p>For each different sample, I have seeded the generator again with the same line: "I left alone, my mind was blank". After that, the generator takes there lyrics where ever it wants. The colouring of the words comes from comparing the generated text, to the original song lyrics. From left to right, I find the longest substring that is in the original lyrics, and colour it one colour. The result is that any continious set text of the same colour comes from the same song.</p>
+<p>So what's happening? when the state is zero characters, the Markov Metal Machine (MMM) just generates letters from the frequency with which letters appear in the original text, with no long term dependency at all. The result is a mess once we get to the end of the seed text. By two characters, we don't see words yet, but word-shaped terms. By four characters, most of the words generated are real english words and by eight characters...</p>
+<p>By sixteen characters, the generated text looks like a song. The problem is it only looks like a song because the generated text come from 4 diffrent songs spliced together. The first two lines are the original number of the beast, from there it jumps to Therion – In Remembrance, followed by Motorhead - Time is Right, ending on Deicide - Once apon the Cross. By the time we use 24 characters as our state, there is no variation, the MMM blindly regurgertates "Number of the Beast".</p>
+<p>We see similar patterns when using words at states. At 0-words the MMM just generates words randomly. Even though there is no memory at all here, the song looks strangly strutured - the generated lyrics are split into lines at roughly the right length. By two words the song almost makes sense. In the short term phrases look like real lyrics, but on the level of lines, the subject matter changes too much and the grammar doesn't make sense. As we will see, this is a common trait of Markov models.</p>
+<p>By 4 words, the MMM is again generating multiple lines of actual lyics, switching from Iron Maiden to Blind Guardian mid-song. By 7 words, things are worse. "Number of the Beast" is almost completely generated, the only break comes from switching to Sabaton - Metal Ripper, a song already made from the lines of other metal songs.</p>
+<h2>[END]</h2>
+<p>You might have noticed that several of the songs end with "[END]". This is because of a subtitlty I haven't disussed yet: how to terminate the sequence. We can use the function described above to only generate subsequent symbols. Without a way to terminate, this could last forever. One way is to generate only a fixed number of symbols, another is to end each lyric with a termination token. If this is sampled, we end the sequence. I use "[END]" to represent this. I actually use both these mechinisms for samples above. Either the termination character comes up, and I end, or I end if 500 characters are reached.</p>
+<p>While the samples above were generated from a seed, we can also include a number of "initial" characters to pad the lyrics at the start, so we also generate the first few tokens as well. </p>
+<h2>Evaluation</h2>
+<p>The goal of generating "Metal Lyrics" is a abigious one. How would do we know if we've done any good? Following <a href="">Turing</a>, the best answer I can think of is that if they sound like metal lyrics to a human, then we have probably done a good job. But this sort of evaluation is expensive. I'd love to be able to build thousands of models and have them all ranked by humans, but humans cost money. If we are to generate lyrics algorithmically we would want a way to evaluate the model that generated them algorithmically.</p>
+<p>At present I don't know of any automatic measure of "lyric goodness" (If you do, please get in touch). Instead, just as we have generated our lyrics using a "language model" we can evaluate them using ideas from Information Theory. The story goes like this: text is not random. Some strings are more common then others.</p>
+<p>So far this is just a restatement of what was said above. To go beyond it, we use <a href="https://en.wikipedia.org/wiki/Shannon%27s_source_coding_theorem">Shannon's Theorem</a>: if we tried to compress the information in a song lyrics, the minimum space we can compress it to is given by the entropy of our distribution over the lyrics space. While we can't calculate this directly, we can approximate it by trying to use our lanaguage model to predict a set of lyrics it hasn't seen before (we call these the validation lyrics). The result is a measure called <a href="https://en.wikipedia.org/wiki/Cross_entropy#Cross-entropy_error_function_and_logistic_regression">crossed-entropy</a>. In our case we will be looking at the mean crossed-entropy per token.</p>
+<p>If that confuses you, don't worry. The operational meaning of crossed-entropy isn't that important to us. All we need to know is that the better our lanaguage model is at predicting the validation lyrics, the lower its crossed-entropy. I use it because it is a common metric used in language modeling (Another closely related metric is <a href="https://en.wikipedia.org/wiki/Perplexity">perplexity</a>).</p>
+<p>Before evaluating our models, I need to bring up a subtlty that will be explored more fully in the next section. Our maximum likelihood models are <em>unsmoothed</em>. This means that if we present a certain state to them that they haven't seen before, and will assign probability zero. We need some way around this, as if any part of our lyric is judged to have probability zero, all parts will. I use a simple approach: <a href="https://en.wikipedia.org/wiki/Additive_smoothing">laplace smoothing</a>. Here we replace the probability of the next character with:</p>
+<div class="math">$$
+P(x_{n+1}|x_{n},...,x_{n-k}) = \frac{#(x_{n+1}, x_{n}, ... , x_{n-k}) + 1}{#(x_{n}, ... , x_{n-k}) + v}
+$$</div>
+<p>Where <span class="math">\(v\)</span> is the number of unknown tokens in our validation set. Much more sophisticated smoothing techniques have been developed but our main goal here is text generation, so I will keep it simple. Looking at how the b</p>
+<p>Let us start by looking at how mean crossed-entropy varies with the length of our state for the character based models, </p>
+<p><a href="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/char_scores.png">
+  <img src="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/char_scores.png" alt="Scoring Language Models: character level markov chains" style="width:50%;">
+</a></p>
+<p>As you can see, it obtains it's best values at 5-character length contexts, with a mean cross-entropy of just over 2-bits per characters. For word level n-grams we get</p>
+<p><a href="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/word_scores.png">
+  <img src="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/word_scores.png" alt="Scoring Language Models: language level markov chains" style="width:50%;">
+</a></p>
+<p>Where we obtain our best results for 2 word contexts, with a with a mean cross-entropy of just over 6-bits per word.</p>
+<p>There are two points worth commenting on here:</p>
+<ul>
+<li>While mean cross-entropy is one measure of the quality of a language model, for our purposes it doesn't capture exactly what we are aiming to do: generate lyrics. As such, the best model as chosen by mean cross-entropy is <em>not</em> the one I would have chosen as best representing the balance between novelity and quality of generated lyrics. However, I don't know of a better automated metric. </li>
+<li>For each of these models, once our context state gets too large, our model seems to get worse, much worse then even having no context at all and simply guessing the next word based on overall token frequencies. The reasons for this are discussed in the next section.</li>
+</ul>
+<h2>The Curse of Dimensionality</h2>
+<p>The <a href="https://en.wikipedia.org/wiki/Curse_of_dimensionality">curse of dimensionality</a> is a great name for a band. It is also the reason why as we make the state size of our Markov Metal Machine larger it starts to produce copies of existing song lyrics. In short, the idea say that the number of all possible states grow exponentially with the size of our state, but the number of examples we are using to train our model stay the same size. This means that as the state size grows, only an increasingly tiny faction of states have been seen before.</p>
+<p>The dataset I'm using contains 50 distinct characters: that is 26 characters from the alphabet, 10 digits and 14 punctuation marks. For a state of one character, this means keeping track of just 50 states. For two characters it mean keeping track of <span class="math">\(50^{2} = 2500\)</span>, for four characters, 6250000 states. Given our training set contains only have 14 million character, by the time we hit 8-character states, most contexts wouldn't exist in the model. For our original seed "I lived alone, my mind was blank", the 8 characters context "was blank" has only has one possible next character: a new line. </p>
+<p>Dealing with the curse of dimensionality involves finding a model that allows us to fill in areas with missing data. This means making assumptions about how to interpolate between different values. To do this we are going to need to turn to more powerful techniques.</p>
+<h2>Neural Nets</h2>
+<p>Neural Nets (NNs) are a method to get around the curse of dimensionality that have become increasingly popular over the last decade. The rough idea is to create a models of recursive logistic regression units, involving millions of parameters trained using stocastic gradient decent to approximate functions. Their success in areas of mapping high dimensional data to low dimensions has been stunning. </p>
+<p>While the ideas behind neural networks have been developed over the last few decades, it has been the the last few years that there popularity has exploded due to a few high profile successes, included: ...</p>
+<p>Because of their popularity, a lot has been written about neural nets. I am not an expert, and am not going to try and reproduce the details, others have done it far more eliqulently then I could. For the full mathematical picture of how they work, I highly recommend <a href="http://neuralnetworksanddeeplearning.com/">this book by Micheal Nielsen</a>. For a shorter introduction to how it works, try <a href="http://karpathy.github.io/neuralnets/">here</a>.</p>
+<p>From a practical point of view, the following experiments were carried out in <a href="https://keras.io/">Keras</a> and run on an amazon GPU instance. I've been amazed by the power of neural network models. Intitively, I don't have an explaination of how they are so powerful at learning representations of text. It makes some sense that a model with so many parameters could reproduce the results here. What's impressive is that they can be trained by simple stocastic gradient decent. </p>
+<p>Although neural net are powerful, it comes at a cost. The maximum likelihood models we saw before took twenty minutes to code from scratch. Even using powerful libraries, it took me a while to understand NNs well enough to use. On top of this, training the models here took days of computer time, plus more of my human time tweeking hyperparameters to get the models to converge. I lack the temporal, financial and computational powers to fully explore the hyperparamter space of these models, so the results presented here should be considered suboptimal. </p>
+<p>While I am only presenting the working product here, behind them are a story of failed experiments. Let's see if it was worth it.</p>
+<h2>Battlemetal Brain</h2>
+<p>Our first approach with NNs will be to attempt to approximate the function <span class="math">\(P(x_{n+1}|x_{n},...,x_{n-k})\)</span> for various sizes of context. I will be using feed forward networks for this section. For simplicity, I am going to stick to character level models. The best general archatecture I found was two feed forward layers of 512 units, followed by a softmax output, with layer normalisation, dropout and tanh activations. Each model was trained for 20 epochs to minimise the mean cross-entropy. </p>
+<p>Samples for different context lengths can be found below:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Generated Text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 characters</td>
+<td><p><span style="color:#ff7f0e">thearo</span><span style="color:#2ca02c">w, deam</span><span style="color:#d62728">e got youn</span><span style="color:#9467bd">na past</span><span style="color:#8c564b"><br>but my th</span><span style="color:#e377c2">e on'</span><span style="color:#7f7f7f">t ind </span><span style="color:#bcbd22">yound </span><span style="color:#17becf">will make ith</span><span style="color:#1f77b4">e gon i</span><span style="color:#ff7f0e"> don a</span><span style="color:#2ca02c">nd and hou</span><span style="color:#d62728"> to me<br>caust</span><span style="color:#9467bd"> your at r</span><span style="color:#8c564b">ou be g</span><span style="color:#e377c2">ot the lover</span><span style="color:#7f7f7f">end i fa</span><span style="color:#bcbd22">ddy da</span><span style="color:#17becf">r foream</span><span style="color:#1f77b4">at ing</span><span style="color:#ff7f0e"> the farte</span><span style="color:#2ca02c">mbat in</span><span style="color:#d62728">g<br>not y</span><span style="color:#9467bd">oughth</span><span style="color:#8c564b">e they day</span><span style="color:#e377c2"> ing </span><span style="color:#7f7f7f">of cry </span><span style="color:#bcbd22">he thear</span><span style="color:#17becf">t ind </span><span style="color:#1f77b4">creav</span><span style="color:#ff7f0e">end ow</span><span style="color:#2ca02c"> to et </span><span style="color:#d62728">all.<br>dow </span><span style="color:#9467bd">it wor </span><span style="color:#8c564b">was ownd</span><span style="color:#e377c2"> blet</span><span style="color:#7f7f7f"> loa p</span><span style="color:#bcbd22">rus if</span><span style="color:#17becf">e the mor </span><span style="color:#1f77b4">to reapa</span><span style="color:#ff7f0e">ing be i</span><span style="color:#2ca02c">the pat </span><span style="color:#d62728">going one</span><span style="color:#9467bd"> gon h</span><span style="color:#8c564b">oled is</span><span style="color:#e377c2"> be paing</span><span style="color:#7f7f7f"> tow s</span><span style="color:#bcbd22">e com </span><span style="color:#17becf">the cray </span><span style="color:#1f77b4">goess</span><span style="color:#ff7f0e"> innow</span><span style="color:#2ca02c">n of that n</span><span style="color:#d62728">owna </span><span style="color:#9467bd">me son t</span><span style="color:#8c564b">h on do</span><span style="color:#e377c2"> th ev</span><span style="color:#7f7f7f">e my of</span><span style="color:#bcbd22"> bed m</span><span style="color:#17becf">ing to som<br></span><span style="color:#1f77b4">som me</span><span style="color:#ff7f0e">s the hey</span><span style="color:#2ca02c">ed you got </span><span style="color:#d62728">on to me b</span><span style="color:#9467bd">eeld</span><span style="color:#8c564b"> to matti</span><span style="color:#e377c2">on who</span></p></td>
+</tr>
+<tr>
+<td>4 characters</td>
+<td><p><span style="color:#ff7f0e">i got the hu</span><span style="color:#2ca02c">nts and i </span><span style="color:#d62728">got me the</span><span style="color:#9467bd"> light to fig</span><span style="color:#8c564b">ht<br>but the c</span><span style="color:#e377c2">an beforev</span><span style="color:#7f7f7f">er to the de</span><span style="color:#bcbd22">fening<br><br>i</span><span style="color:#17becf"> killed and o</span><span style="color:#1f77b4">f the mosh</span><span style="color:#ff7f0e">inting my mea</span><span style="color:#2ca02c">ning an of</span><span style="color:#d62728"> the fire is c</span><span style="color:#9467bd">ome<br>i'm u</span><span style="color:#8c564b">nder of in</span><span style="color:#e377c2"> the just g</span><span style="color:#7f7f7f">ive every n</span><span style="color:#bcbd22">ot but i</span><span style="color:#17becf"> jast</span><span style="color:#1f77b4">icking you k</span><span style="color:#ff7f0e">now i mad</span><span style="color:#2ca02c">e and i can't do</span><span style="color:#d62728"> in the sin<br></span><span style="color:#9467bd">to live<br>wer</span><span style="color:#8c564b">e you needi</span><span style="color:#e377c2">ng still be</span><span style="color:#7f7f7f">liever e</span><span style="color:#bcbd22">nd you will no </span><span style="color:#17becf">the damn h</span><span style="color:#1f77b4">ell the on </span><span style="color:#ff7f0e">the way to gi</span><span style="color:#2ca02c">ve you been o</span><span style="color:#d62728">ur kist</span><span style="color:#9467bd"> that the sig</span><span style="color:#8c564b">n of the crowni</span><span style="color:#e377c2">tery, cr</span><span style="color:#7f7f7f">ain<br>who i</span><span style="color:#bcbd22"> will the ta</span><span style="color:#17becf">sted we </span><span style="color:#1f77b4">modar</span><span style="color:#ff7f0e">, no do </span><span style="color:#2ca02c">but it wan</span><span style="color:#d62728">ted to you w</span><span style="color:#9467bd">ill pretend t</span><span style="color:#8c564b">raction b</span><span style="color:#e377c2">lood on ther</span><span style="color:#7f7f7f">e the</span></p></td>
+</tr>
+<tr>
+<td>6 characters</td>
+<td><p><span style="color:#ff7f0e">when with</span><span style="color:#2ca02c">out of an t</span><span style="color:#d62728">he every b</span><span style="color:#9467bd">lues<br>so h</span><span style="color:#8c564b">ave for ev</span><span style="color:#e377c2">ery mak</span><span style="color:#7f7f7f">e it sum</span><span style="color:#bcbd22">bition is b</span><span style="color:#17becf">ow down, w</span><span style="color:#1f77b4">hy ea</span><span style="color:#ff7f0e">y and low</span><span style="color:#2ca02c"> it all the l</span><span style="color:#d62728">ost with de</span><span style="color:#9467bd">stroy tri</span><span style="color:#8c564b">ed[</span><span style="color:#e377c2">END]</span></p></td>
+</tr>
+<tr>
+<td>10 characters</td>
+<td><p><span style="color:#ff7f0e">the time to ra</span><span style="color:#2ca02c">ll<br>we lea</span><span style="color:#d62728">ve and the w</span><span style="color:#9467bd">reeded</span><span style="color:#8c564b"> us life s</span><span style="color:#e377c2">ifule</span><span style="color:#7f7f7f">s and everything e</span><span style="color:#bcbd22">nd<br>the law</span><span style="color:#17becf"> it alra</span><span style="color:#1f77b4">ins - a</span><span style="color:#ff7f0e">rist the w</span><span style="color:#2ca02c">orld we w</span><span style="color:#d62728">aits the de</span><span style="color:#9467bd">vily w</span><span style="color:#8c564b">ith a hear </span><span style="color:#e377c2">their start</span><span style="color:#7f7f7f"> of pic</span><span style="color:#bcbd22">k at sca</span><span style="color:#17becf">n through<br>we w</span><span style="color:#1f77b4">ill be wate</span><span style="color:#ff7f0e">r and cry </span><span style="color:#2ca02c">am of goo</span><span style="color:#d62728">d to wing</span><span style="color:#9467bd"> centin</span><span style="color:#8c564b">g from the sky<br>i'</span><span style="color:#e377c2">m coming up t</span><span style="color:#7f7f7f">he pain, re</span><span style="color:#bcbd22">aus b</span><span style="color:#17becf">urning blam</span><span style="color:#1f77b4">e<br>and it's the b</span><span style="color:#ff7f0e">ack the pat</span><span style="color:#2ca02c">h, slaw</span><span style="color:#d62728">ed bring </span><span style="color:#9467bd">her prophed</span><span style="color:#8c564b"> they was </span><span style="color:#e377c2">abovy</span><span style="color:#7f7f7f"> i tell me</span><span style="color:#bcbd22"> it don't know </span><span style="color:#17becf">it's our fa</span><span style="color:#1f77b4">ce<br>the final i</span><span style="color:#ff7f0e">n the dark is w</span><span style="color:#2ca02c">ho tro</span><span style="color:#d62728">ud<br>the w</span><span style="color:#9467bd">alking the cou</span><span style="color:#8c564b">ld reliv</span><span style="color:#e377c2">es...<br>i f</span><span style="color:#7f7f7f">eel the worlds</span><span style="color:#bcbd22"> and dustr</span><span style="color:#17becf">atolit</span><span style="color:#1f77b4"> t</span></p></td>
+</tr>
+<tr>
+<td>15 characters</td>
+<td><p><span style="color:#ff7f0e">i want to dec</span><span style="color:#2ca02c">e<br>spill y</span><span style="color:#d62728">ou got to sto</span><span style="color:#9467bd">p up me</span><span style="color:#8c564b">, but i'm a c</span><span style="color:#e377c2">orra t</span><span style="color:#7f7f7f">o be hop</span><span style="color:#bcbd22">e<br>i sail</span><span style="color:#17becf"><br>mid i</span><span style="color:#1f77b4">n hose t</span><span style="color:#ff7f0e">o can cou</span><span style="color:#2ca02c">ld believe in t</span><span style="color:#d62728">he end<br><br>someth</span><span style="color:#9467bd"> the ground<br>so se</span><span style="color:#8c564b">w of no</span><span style="color:#e377c2">whing</span><span style="color:#7f7f7f"> ever ful</span><span style="color:#bcbd22">l<br>so lea</span><span style="color:#17becf">ve all the mo</span><span style="color:#1f77b4">on<br>we d</span><span style="color:#ff7f0e">one i don't c</span><span style="color:#2ca02c">are it<br>h</span><span style="color:#d62728">e's they</span><span style="color:#9467bd"> mean her</span><span style="color:#8c564b"> march<br>ha</span><span style="color:#e377c2">s been for i</span><span style="color:#7f7f7f"> want to disg</span><span style="color:#bcbd22">ring blood<br></span><span style="color:#17becf">some back </span><span style="color:#1f77b4">on the chance<br></span><span style="color:#ff7f0e">we're real </span><span style="color:#2ca02c">go ble</span><span style="color:#d62728">ed be b</span><span style="color:#9467bd">loods my l</span><span style="color:#8c564b">ife<br>to br</span><span style="color:#e377c2">eak away<br><br>c</span><span style="color:#7f7f7f">ome of my la</span><span style="color:#bcbd22">st and the tru</span><span style="color:#17becf">th<br><br>she c</span><span style="color:#1f77b4">all of all g</span><span style="color:#ff7f0e">onna shal</span><span style="color:#2ca02c">l be dead t</span><span style="color:#d62728">he time wan</span><span style="color:#9467bd"><br><br>a g </span><span style="color:#8c564b">evil our</span><span style="color:#e377c2"> feed<br><br>it</span><span style="color:#7f7f7f">'s over car</span><span style="color:#bcbd22">e, fall e</span><span style="color:#17becf">tell i wi</span><span style="color:#1f77b4">sh the way</span><span style="color:#ff7f0e"> you</span></p></td>
+</tr>
+<tr>
+<td>20 characters</td>
+<td><p><span style="color:#ff7f0e">the steali</span><span style="color:#2ca02c">ty so p</span><span style="color:#d62728">imes bro</span><span style="color:#9467bd">ther cross th</span><span style="color:#8c564b">is is through </span><span style="color:#e377c2">you down the m</span><span style="color:#7f7f7f">ore of eve</span><span style="color:#bcbd22">ry (w</span><span style="color:#17becf">hat you let b</span><span style="color:#1f77b4">e the man he</span><span style="color:#ff7f0e"> plan<br>i f</span><span style="color:#2ca02c">all of this an</span><span style="color:#d62728">d save me<br>y</span><span style="color:#9467bd">eah, ta</span><span style="color:#8c564b">ke you see d</span><span style="color:#e377c2">own, die</span><span style="color:#7f7f7f"><br><br>uni </span><span style="color:#bcbd22">to the still b</span><span style="color:#17becf">e you take a ho</span><span style="color:#1f77b4">ld you've been,</span><span style="color:#ff7f0e"> fallen a </span><span style="color:#2ca02c">sacred and t</span><span style="color:#d62728">he name<br>the </span><span style="color:#9467bd">templess</span><span style="color:#8c564b"> hame </span><span style="color:#e377c2">the misse</span><span style="color:#7f7f7f">d to die i </span><span style="color:#bcbd22">bered in v</span><span style="color:#17becf">erress</span><span style="color:#1f77b4"> the spired</span><span style="color:#ff7f0e"> of me<br>i won't m</span><span style="color:#2ca02c">e in you t</span><span style="color:#d62728">hink i've sh</span><span style="color:#9467bd">all never e</span><span style="color:#8c564b">yes<br>and you d</span><span style="color:#e377c2">eny me<br>a</span><span style="color:#7f7f7f">nd you try to m</span><span style="color:#bcbd22">e<br>i really goo</span><span style="color:#17becf">d to sun</span><span style="color:#1f77b4"><br>(we are m</span><span style="color:#ff7f0e">e sight)</span><span style="color:#2ca02c"><br>on the night,</span><span style="color:#d62728"> show min</span><span style="color:#9467bd">d in the er</span><span style="color:#8c564b">ip in the en</span><span style="color:#e377c2">tight tod</span><span style="color:#7f7f7f">ay<br>we al</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>Plotting the mean crossed entropy against context length we find:</p>
+<p><a href="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/nn_scores.png">
+  <img src="http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/nn_scores.png" alt="Scoring Language Models: feedforward neural nets" style="width:50%;">
+</a></p>
+<p>...more words...</p>
+<h2>Beyond Markov</h2>
+<p>So far we have only considered models of the kind <span class="math">\(P(x_{n+1}|x_{n},...,x_{n-k})\)</span>, with a fixed notion of the "past". When we look at the outputs of our previous experiments, it sort of looks like there is structure. It's not very good, but we tend not to end up with lines that are too long, and the lines are sometimes arranged into blocks that could be called verses. This is all an accedent - non of the models we have looked at so far have any idea what happened 25 characters before the current character. </p>
+<p>Our main reason for this is generality: we could have imposed some sort of structure from the outside, but it is not obvious how well it would generalise. Not every song obeys a verse-chorus-verse structure, and by creating such a model by hand it feels like we have a system that hasn't <em>learned</em>, but rather blindly copied us (not that this is necessarily a bad thing, it is just not what I am trying to do in this post). In order to do this, we need a way of mapping a variable length input to a fixed length output. </p>
+<p>One promising technique for doing this is <a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">recurrent neural networks</a> (RNN). The key insight behind RNNs is to take a feedforward neural network and run it across the sequence as you would to predict for a sequence, but to also output a vector. This vector then forms part of the input for the next prediction in the sequence. In this way we are still approximating a fixed lenght input to fixed length output function, but now the input and output to the function include a vector that gives us some idea of the "history" of the sequence seen so far.</p>
+<p>In order to train such a network, you need to be able to "unroll" the network and backpropogate as you would for a feedforward network. This process is known a back propogation through time. </p>
+<h2>Recurrent Rock Radio</h2>
+<p>The network used here contains two LSTM layers of 512 units each, followed by a fully connected softmax layer. I unroll the sequence for 32 characters and train the model by trying to predict 32 characters, given their immediately preceeding characters by minising the mean cross-entropy. In order to split variable length songs into fix length 32-character chuncks to train the mode I ordered songs by length, split them into 128 song long batches. For each 128 song-batch, I padded the songs at the end to make all the songs within the same batch the same size. I then split each song-batch into 32 character chunks. I then trained the model song-batch by song-batch, reseting the internal state after each song-batch. I call training all of the song-batches once one epoch.</p>
+<p>For this model I only have one variant, so we can look at a sample of the model after each training epoch:</p>
+<h2>Band Style</h2>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+	
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="ijmbarr">Tweet</a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+    </div><!-- /.entry-content -->
+
+
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'degeneratestate';
+        var disqus_identifier = 'posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/';
+        var disqus_url = 'http://www.degeneratestate.org/posts/2016/Jul/30/heavy-metal-and-natural-language-processing-part-2/';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//degeneratestate.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
 </section>
 
         <footer id="contentinfo" class="body">
