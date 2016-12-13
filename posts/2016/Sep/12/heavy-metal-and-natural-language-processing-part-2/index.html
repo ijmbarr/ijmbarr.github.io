@@ -11862,7 +11862,7 @@ In this form, the task of building a language model becomes one of building a mo
 <h2>Markov Approximation</h2>
 <p>A simple yet powerful approach is known as the <a href="https://en.wikipedia.org/wiki/Markov_property">Markov Approximation</a>, which assumes that future state of a system depends only on its current state. In the notation of our language model, we can consider the "current state" to be a fixed number of symbols, and the future state to be the next symbol, or:</p>
 <div class="math">$$
-P(x_{n}|x_{0}, x_{1}, ... , x_{n-1}) \approx P(x_{n+1}|x_{n}, x_{n-1}, ..., x_{n-k})
+P(x_{n}|x_{0}, x_{1}, ... , x_{n-1}) \approx P(x_{n+1}|x_{n-k}, x_{n-k+1}, ..., x_{n})
 $$</div>
 <p>
 <br>
