@@ -11865,13 +11865,13 @@ jQuery(document).ready(function($) {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Warning">Warning<a class="anchor-link" href="#Warning">&#182;</a></h3><p>This is a long post. It wasn't meant to be this way, but reaction diffusion equations proved to be too damn interesting not to write a lot about. To try and understand the system, I do some maths and some programming. Be warned, the maths isn't rigorousness and the code isn't the most efficient. This is a deliberate choice. My goal is to try and understand the system, and along the way learn to create images like this</p>
+<h3 id="Warning">Warning<a class="anchor-link" href="#Warning">&#182;</a></h3><p>This is a long post. It wasn't meant to be this way, but reaction diffusion equations proved to be too damn interesting not to write a lot about. To try and understand the system, I do some maths and some programming. Be warned, the maths isn't rigorous and the code isn't the most efficient. This is a deliberate choice. My goal is to try and understand the system, and along the way learn to create images like this</p>
 <p><img src="http://www.degeneratestate.org/static/turing-patterns/title.png" alt="title"></p>
-<h1 id="Turing-Patterns">Turing Patterns<a class="anchor-link" href="#Turing-Patterns">&#182;</a></h1><p>In 1952, <a href="https://en.wikipedia.org/wiki/Alan_Turing">Turing</a> published a paper called <a href="http://www.dna.caltech.edu/courses/cs191/paperscs191/turing.pdf">"The Chemical Basis of Morphogenesis"</a> suggesting a possible mechanism for how a simple set of chemical reactions could lead to the formation of stripes, spots and other patterns we see on animals. It is a surprisingly readable paper that covers some maths, some chemistry, some numerical modelling and ties it all together to try an answer a biological question.</p>
+<h1 id="Turing-Patterns">Turing Patterns<a class="anchor-link" href="#Turing-Patterns">&#182;</a></h1><p>In 1952, <a href="https://en.wikipedia.org/wiki/Alan_Turing">Turing</a> published a paper called <a href="http://www.dna.caltech.edu/courses/cs191/paperscs191/turing.pdf">"The Chemical Basis of Morphogenesis"</a> suggesting a possible mechanism for how a simple set of chemical reactions could lead to the formation of stripes, spots and other patterns we see on animals. It is a surprisingly readable paper that covers some maths, some chemistry, some numerical modelling and ties it all together to try and answer a biological question.</p>
 <p>At the core of the paper are a set of partial differential equations known as <a href="https://en.wikipedia.org/wiki/Reaction%E2%80%93diffusion_system">reaction-diffusion equations</a>. Turing's analysis shows that in certain regimes systems that obey these equations are unstable to small perturbations, leading to the growth of large scale patterns.</p>
 <p>If you have only a basic understanding of chemistry (like I do) this might be surprising. Most chemical reactions I've seen involve homogeneous concentrations of reagents, reacting to create the final products, often described by a reaction equation like</p>
 <p>$A + B \rightarrow C + D$</p>
-<p>In this simplified model there is no room for pattern formation, because haven't included any description about how concentrations of the different chemical vary in space. Once we take into account these differences, a much richer set of behaviours is possible.</p>
+<p>In this simplified model there is no room for pattern formation, because haven't included any description about how concentrations of the different chemicals vary in space. Once we take into account these differences, a much richer set of behaviours is possible.</p>
 <p>In this post, I am going explore the system described in the paper.</p>
 
 </div>
@@ -11882,7 +11882,7 @@ jQuery(document).ready(function($) {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Reaction-Diffusion-Equations">Reaction Diffusion Equations<a class="anchor-link" href="#Reaction-Diffusion-Equations">&#182;</a></h2><p>Reaction-Diffusion equations are a class of partial differential equations whose dynamics are governed by to terms: a diffusion part and a reaction part. We will be looking at the two component case, which takes the form</p>
+<h2 id="Reaction-Diffusion-Equations">Reaction Diffusion Equations<a class="anchor-link" href="#Reaction-Diffusion-Equations">&#182;</a></h2><p>Reaction-Diffusion equations are a class of partial differential equations whose dynamics are governed by two terms: a diffusion part and a reaction part. We will be looking at the two component case, which takes the form</p>
 <p>$\frac{\partial a(x,t)}{\partial t} = D_{a}\frac{\partial^{2} a(x,t)}{\partial x^{2}} + R_{a}(a(x,t),b(x,t))$</p>
 <p>$\frac{\partial b(x,t)}{\partial t} = D_{b}\frac{\partial^{2} b(x,t)}{\partial x^{2}} + R_{b}(a(x,t),b(x,t))$</p>
 <p>Where the $a(x,t)$ and $b(x,t)$ describe the concentration of chemicals $a$ and $b$ at position $x$ and time $t$. The functions $R_{a}$ and $R_{b}$ determine how the concentrations change due to interspecies reactions and $D_{a}$ and $D_{b}$ are the diffusion coefficients.</p>
@@ -11897,7 +11897,7 @@ jQuery(document).ready(function($) {
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Diffusion">Diffusion<a class="anchor-link" href="#Diffusion">&#182;</a></h3><p>The diffusion part of the equations causes areas of high concentration to spread out to areas of low concentration, while conserving the total amount of the chemical. To get a feel for what's happening, let's focus the equation</p>
 <p>$ \frac{\partial a(x,t)}{\partial t} = D_{a}\frac{\partial^{2} a(x,t)}{\partial x^{2}} $</p>
-<p>If this looks families, it is because it appears in a number of different areas of science and maths. A few are: the <a href="https://en.wikipedia.org/wiki/Diffusion_equation">diffusion equation</a>, the <a href="https://en.wikipedia.org/wiki/Heat_equation">heat equation</a> and <a href="https://en.wikipedia.org/wiki/Brownian_motion">Brownian motion</a>.</p>
+<p>If this looks familiar, it is because it appears in a number of different areas of science and maths. A few are: the <a href="https://en.wikipedia.org/wiki/Diffusion_equation">diffusion equation</a>, the <a href="https://en.wikipedia.org/wiki/Heat_equation">heat equation</a> and <a href="https://en.wikipedia.org/wiki/Brownian_motion">Brownian motion</a>.</p>
 <p>It has an analytic solution, which for initial Gaussian distribution is</p>
 <p>$ a(x,t) = \frac{a_{0}}{\sqrt{2\pi(\sigma_{0}^{2} + 2 D_{a} t)}} \exp\left(-\frac{x^{2}}{2(\sigma_{0}^{2} +  2 D_{a} t)}\right)$</p>
 <p>A "spreading out", or diffusion over time, as the name suggests.</p>
@@ -11911,7 +11911,7 @@ jQuery(document).ready(function($) {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Simulating-equations">Simulating equations<a class="anchor-link" href="#Simulating-equations">&#182;</a></h3><p>If you've got this far, you might have noticed that this is written in a <a href="http://jupyter.org/">jupyter notebook</a>. This allows us to mix code with writing, so we don't just have to look at an equation to understand how it behaves - we can simulate it directly.</p>
-<p>To simulate the PDEs, I'm going to use the <a href="https://en.wikipedia.org/wiki/Finite_difference_method#Example:_The_heat_equation">explicit finite-difference method</a>. It is not th best numerical method to used, but it is easy to code, and provided we keep the time step small enough it will be stable.</p>
+<p>To simulate the PDEs, I'm going to use the <a href="https://en.wikipedia.org/wiki/Finite_difference_method#Example:_The_heat_equation">explicit finite-difference method</a>. It is not the best numerical method to use, but it is easy to code, and provided we keep the time step small enough it will be stable.</p>
 <p>Under this scheme, we approximate the time derivative as</p>
 $$
 \frac{\partial a(x,t)}{\partial t} \approx \frac{1}{dt}(a_{x,t+1} - a_{x,t})
@@ -11934,7 +11934,7 @@ $$<p>Let's start by defining some functions to take care of the spatial derivati
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="c1"># I&#39;m using seabor for it&#39;s fantastic default styles</span>
+<span class="c1"># I&#39;m using seaborn for it&#39;s fantastic default styles</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 <span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
 
@@ -12131,7 +12131,7 @@ $$<p>Let's start by defining some functions to take care of the spatial derivati
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><img src="http://www.degeneratestate.org/static/turing-patterns/reaction.gif" alt="reaction"></p>
-<p>The system is stable, and stablises to $a = b = \sqrt[3]{\alpha}$.</p>
+<p>The system is stable, and stabilises to $a = b = \sqrt[3]{\alpha}$.</p>
 
 </div>
 </div>
