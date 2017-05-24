@@ -1,0 +1,6 @@
+Title: Images to Triangles 
+Author: Iain
+Summary: Images to Triangles
+Date: 2017-05-24
+
+{% notebook images-to-triangles/images-to-triangles.ipynb %}
