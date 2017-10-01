@@ -1,0 +1,12 @@
+path.graticule {
+  fill: none;
+  stroke: #aaa;
+  stroke-width: .5px;
+}
+
+
+.land {
+  fill: none;
+  stroke: #a00;
+  stroke-width: 1px;
+}
