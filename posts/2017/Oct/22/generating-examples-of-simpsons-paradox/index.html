@@ -11870,10 +11870,7 @@ jQuery(document).ready(function($) {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-$$
-\newcommand{P}[1]{\mathrm{P}\left( #1 \right)}
-\newcommand{Pc}[2]{\mathrm{P}\left( #1 \mid #2 \right)}
-$$<p><a href="https://en.wikipedia.org/wiki/Simpson%27s_paradox">Simpson' Paradox</a> is a example of one of the counter intuitive properties of probability distributions. It occurs when an observed relationship between two variables is reversed when you take into account another variable.</p>
+<p><a href="https://en.wikipedia.org/wiki/Simpson%27s_paradox">Simpson' Paradox</a> is a example of one of the counter intuitive properties of probability distributions. It occurs when an observed relationship between two variables is reversed when you take into account another variable.</p>
 <p>The paradox itself has been <a href="http://michaelnielsen.org/reinventing_explanation/">described</a> <a href="http://vudlab.com/simpsons/">very</a> <a href="http://ftp.cs.ucla.edu/pub/stat_ser/r414.pdf">well</a> <a href="http://andrewgelman.com/2014/04/08/understanding-simpsons-paradox-using-graph/">elsewhere</a>, so I'm not going to describe it in too much detail here. Instead I'm going to try and answer another question: how do we write a program to generate examples of Simpson's paradox?</p>
 <p>Let's start with an example of the paradox:</p>
 <p>Imagine we are trying to work out whether a certain drug is an effective treatment for a disease. To decide whether it is effective, we compare people who took the drug (call this $x$, if someone took the drug, $x=1$, if not $x=0$), by examining how many of each recovered from the disease (call this $y$ - $y=1$ mean they got better, $y=0$ mean they did not).</p>
@@ -11940,7 +11937,10 @@ $$<p><a href="https://en.wikipedia.org/wiki/Simpson%27s_paradox">Simpson' Parado
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Binary-Case">Binary Case<a class="anchor-link" href="#Binary-Case">&#182;</a></h2><p>Consider the situation where we have three random variables, two binary: $x$, $y$ and one discrete, $z$. Simpson's paradox is observed if when considering just the $x$ and $y$ variables, there appears to be a negative correlation between $x=1$ and $y = 1$.</p>
+<h2 id="Binary-Case">Binary Case<a class="anchor-link" href="#Binary-Case">&#182;</a></h2>$$
+\newcommand{P}[1]{\mathrm{P}\left( #1 \right)}
+\newcommand{Pc}[2]{\mathrm{P}\left( #1 \mid #2 \right)}
+$$<p>Consider the situation where we have three random variables, two binary: $x$, $y$ and one discrete, $z$. Simpson's paradox is observed if when considering just the $x$ and $y$ variables, there appears to be a negative correlation between $x=1$ and $y = 1$.</p>
 <p>Specifically</p>
 <p>$\Pc{Y=1}{X=1} < \Pc{Y=1}{X=0}$</p>
 <p>but when we look at each subgroup, the relationship is the other way round:</p>
