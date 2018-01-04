@@ -1,0 +1,7 @@
+Title: Reducing the Variance of A/B Tests using Prior Information
+Slug: reducing-the-variance-of-ab-test-using-prior-information
+Author: Iain
+Summary: Reducing the Variance of A/B Tests using Prior Information
+Date: 2018-01-04
+
+{% notebook reducing-variance-ab-tests/variance-reduction.ipynb %}
