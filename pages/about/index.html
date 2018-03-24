@@ -188,12 +188,10 @@ optgroup {
 }
 table {
   border-collapse: collapse;
-  border-spacing: 0;
+  border-spacing: 2;
 }
-td,
-th {
-  padding: 0;
-}
+
+
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 @media print {
   *,
@@ -11770,6 +11768,29 @@ div.collapseheader {
     cursor: pointer;
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+
+
+th:first-child, td:first-child
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+th, td
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+
+tr:hover {
+background-color: #f5f5ff
+}
+
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
@@ -11843,7 +11864,7 @@ jQuery(document).ready(function($) {
     
     <p>I'm an ex-physicist currently working as a data scientist.</p>
 <p>This site is a collection of a few things which have interested me.</p>
-<hr />
+<hr>
 <div id = "aboutMenu">
     <ul>
       <li><a href = "https://twitter.com/ijmbarr"> <i class="fa fa-twitter fa-5x"></i></a></li>
@@ -11852,7 +11873,7 @@ jQuery(document).ready(function($) {
     </ul>
 </div>
 
-<hr />
+<hr>
 <p>This website was build using <a href="http://docs.getpelican.com/en/3.5.0/">pelican</a>, <a href="http://getskeleton.com/">skeleton</a> and <a href="http://fortawesome.github.io/Font-Awesome/">font awesome</a></p>
 </section>
 

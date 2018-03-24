@@ -188,12 +188,10 @@ optgroup {
 }
 table {
   border-collapse: collapse;
-  border-spacing: 0;
+  border-spacing: 2;
 }
-td,
-th {
-  padding: 0;
-}
+
+
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 @media print {
   *,
@@ -11770,6 +11768,29 @@ div.collapseheader {
     cursor: pointer;
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+
+
+th:first-child, td:first-child
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+th, td
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+
+tr:hover {
+background-color: #f5f5ff
+}
+
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
@@ -11867,19 +11888,19 @@ jQuery(document).ready(function($) {
         <p>Following my <a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/">previous post</a> on general elections in the UK, I decided to collect a bit more information. This time I am going to be look at <a href="http://en.wikipedia.org/wiki/UK_Parliamentary_by-elections">by-elections</a> in the UK from 1950 to present.</p>
 <p>To collect information on By-elections I had to scrape it from wikipedia, mainly <a href="http://en.wikipedia.org/wiki/List_of_United_Kingdom_by-elections_%281979%E2%80%93present%29">these</a> <a href="http://en.wikipedia.org/wiki/List_of_United_Kingdom_by-elections_%281950%E2%80%9379%29">pages</a>, and links within them. Due to incomplete entries and inconsistent formats between pages the scrapped data is sometimes incomplete for the breakdown of votes. If anyone knows a better source, please let me know. The scrapped data can be found <a href="https://github.com/ijmbarr/UKElectionData">here</a>.</p>
 <p>Over the past 65 years, there have been 440 by-elections in the UK. We can ask how they are distributed in time:</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEByDate.png"><img alt="By Elections over time" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEByDate.png" title="By Elections over time" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEByDate.png"><img alt="By Elections over time" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEByDate.png" title="By Elections over time"></a></p>
 <p>Here the black dashed lines show the dates of general elections, and the blue bars show the number of by-election in a given time frame. The highest point is from the start of 1986 and due to multiple MPs resigning and seeking re-election in protest of the <a href="http://en.wikipedia.org/wiki/Anglo-Irish_Agreement">Anglo-Irish Agreement</a>. </p>
 <h2>Causes</h2>
 <p>We can also ask what causes a by-election. In rough categories the breakdown is given by</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEcauses.png"><img alt="By-Elections Causes" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEcauses.png" title="By-Elections Causes" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEcauses.png"><img alt="By-Elections Causes" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEcauses.png" title="By-Elections Causes"></a></p>
 <p>Showing that death is by far the biggest cause. We lose an average of 13 MPs per general election cycle.</p>
 <p>A question every by-election brings up is how often does a by-election return the same party as an MP. A breakdown of how often this happens is below.</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEPartyReelection.png"><img alt="By-Election chances of returning the same party" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEPartyReelection.png" title="By-Election chances of returning the same party" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEPartyReelection.png"><img alt="By-Election chances of returning the same party" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BEPartyReelection.png" title="By-Election chances of returning the same party"></a></p>
 <p>Where the green bar shows the fraction of by-elections triggered for a cause that have returned an MP of the same party. The black lines of the graph show the confidence intervals we could place on each fraction, if we assumed the data was drawn from a binomial. My reason for doing this is to take into account the fact that the later cause happen so rarely that using them to draw any kind of conclusion is difficult.</p>
 <p>Overall it does not look like there is a statistically significant difference between any reason. They always seems to be about 76% chance of returning the same party.</p>
 <h2>Turnout</h2>
 <p>In a similar trend to my last blog post we can ask how the turn out for by-elections relates to the turnout of the preceding general election.</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BETurnout.png"><img alt="By-Election turnout vs General Election Turnout" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BETurnout.png" title="By-Election turnout vs General Election Turnout" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BETurnout.png"><img alt="By-Election turnout vs General Election Turnout" src="http://www.degeneratestate.org/posts/2015/Feb/15/uk-general-elections-part2/BETurnout.png" title="By-Election turnout vs General Election Turnout"></a></p>
 <p>Not surprisingly, by-elections tend to have lower turnouts than general elections, but other correlate well.</p>
 <h2>How was it made</h2>
 <p>All graphs were produced in python using <a href="http://matplotlib.org/">matplotlib</a> and the <a href="http://stanford.edu/~mwaskom/software/seaborn/">seaborn</a> package.</p>

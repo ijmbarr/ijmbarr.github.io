@@ -188,12 +188,10 @@ optgroup {
 }
 table {
   border-collapse: collapse;
-  border-spacing: 0;
+  border-spacing: 2;
 }
-td,
-th {
-  padding: 0;
-}
+
+
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 @media print {
   *,
@@ -11770,6 +11768,29 @@ div.collapseheader {
     cursor: pointer;
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+
+
+th:first-child, td:first-child
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+th, td
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+
+tr:hover {
+background-color: #f5f5ff
+}
+
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
@@ -11842,6 +11863,8 @@ jQuery(document).ready(function($) {
 <h1>Archives for Degenerate State</h1>
 
 <dl>
+    <dt>24/03/2018</dt>
+    <dd><a href="http://www.degeneratestate.org/posts/2018/Mar/24/causal-inference-with-python-part-1-potential-outcomes/">Causal Inference With Python Part 1 - Potential Outcomes</a></dd>
     <dt>04/01/2018</dt>
     <dd><a href="http://www.degeneratestate.org/posts/2018/Jan/04/reducing-the-variance-of-ab-test-using-prior-information/">Reducing the Variance of A/B Tests Using Prior Information</a></dd>
     <dt>22/10/2017</dt>

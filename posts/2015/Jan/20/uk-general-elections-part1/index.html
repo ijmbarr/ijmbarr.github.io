@@ -188,12 +188,10 @@ optgroup {
 }
 table {
   border-collapse: collapse;
-  border-spacing: 0;
+  border-spacing: 2;
 }
-td,
-th {
-  padding: 0;
-}
+
+
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 @media print {
   *,
@@ -11770,6 +11768,29 @@ div.collapseheader {
     cursor: pointer;
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+
+
+th:first-child, td:first-child
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+th, td
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+
+tr:hover {
+background-color: #f5f5ff
+}
+
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
@@ -11875,31 +11896,31 @@ jQuery(document).ready(function($) {
 <li>almost 668 Political parties took part (this is an over-count obscured by the fact that the same party might be have it's name recorded slightly differently, e.g. 'LibDem' and 'Liberal Democrat'). This includes a number of uncommon names such as <a href="http://en.wikipedia.org/wiki/Death,_Dungeons_and_Taxes_Party">'Death Dungeons &amp; Taxes' Party</a>.</li>
 </ul>
 <p>How did it go for the parties involved? The total number of seats in parliament won by each party can be found below</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/totalSeatsWon.png"><img alt="Seats won by each party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/totalSeatsWon.png" title="Seats won by each party" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/totalSeatsWon.png"><img alt="Seats won by each party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/totalSeatsWon.png" title="Seats won by each party"></a></p>
 <p>As you can see, the British system is dominated by two parties: Labour and Conservatives. In far third place are the Liberals (Here I follow <a href="http://en.wikipedia.org/wiki/List_of_United_Kingdom_general_elections#cite_note-2">wikipedia's</a> lead use the label "Liberal" to cover the Liberals, the SDP–Liberal Alliance and the Liberal Democrats). Behind that are a series of small parties and independent candidates labelled "other". I will use this convention in the following. Some of the time my numbers show and off-by-one error with respect reports elsewhere. As far as I can tell this is due to the inclusions of the <a href="http://en.wikipedia.org/wiki/Speaker_of_the_House_of_Commons_%28United_Kingdom%29">Speaker</a> - who in my data is not considered to have a party and so gets lumped in "other".</p>
 <h2>Looking at the Data</h2>
 <p>We've just seen a total summary of the vote - how does this share of seat won by each party changes over time?</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/SeatsOverTime.png"><img alt="Seats won by each party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/SeatsOverTime.png" title="Seats won by each party" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/SeatsOverTime.png"><img alt="Seats won by each party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/SeatsOverTime.png" title="Seats won by each party"></a></p>
 <p>The vertical black lines show when an election took place, and the white line shows half the total number of available seats. </p>
 <p>Notice that the total number of seat available changes over time. This happens whenever there are boundary changes for constituencies. The process is designed to take into account population shifts over time and to keep it so that each MP represents roughly the same number of people.</p>
 <p>Over the same range we can look at the total share of each vote the parties won</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/VotesOverTime.png"><img alt="Votes won by each party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/VotesOverTime.png" title="Votes won by each party" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/VotesOverTime.png"><img alt="Votes won by each party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/VotesOverTime.png" title="Votes won by each party"></a></p>
 <p>Where the style is the same as the previous graph. </p>
 <p>Ignoring the full results themselves and focusing only on the total number of votes cast we see a steady rise over time until 1992, then a drop. This means that despite the total population of the country increasing by 5 million between 1992 and 2010, the total number of people voting in these elections fell by almost 5 million. Let's take a look at this in more detail.</p>
 <p>How does the percentage turnout vary over time? </p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnout.png"><img alt="mean Election Turnout by Party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnout.png" title="mean Election Turnout by Party" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnout.png"><img alt="mean Election Turnout by Party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnout.png" title="mean Election Turnout by Party"></a></p>
 <p>Here the black line represents the mean turnout for each constituency for a given year, and the black shaded area around this line shows the a fifty percent range - that means that the turnout for half the constituencies of that year lie in that range. I was curious to see if the winner party had any effect on the turn out, so I plotted the lines representing the mean turnout each year for each of the parties separately. These are the coloured lines on the graph. </p>
 <p>However you look at it the turnout rate is dropping - this is true for every party. It seems to be true for <a href="http://en.wikipedia.org/wiki/Voter_turnout#Trends_of_decreasing_turnout">most countries</a> as well.</p>
 <p>Looking at the graph it might be possible to say that the turnout for constituencies where Conservatives and Liberals win is slightly higher than for constituencies where the Labour win. To investigate this further, let's look at just the constituencies where Labour and Conservatives win seats. Because of the large variation on turnout due to time, I am going to subtract off the mean turnout for each year from the results. A histogram of the remaining turnout is shown below.</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/conVslabTurnout.png"><img alt="Election Turnout by Party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/conVslabTurnout.png" title="Election Turnout by Party" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/conVslabTurnout.png"><img alt="Election Turnout by Party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/conVslabTurnout.png" title="Election Turnout by Party"></a></p>
 <p>That looks fairly conclusive: on average the areas that return Conservative MPs have a higher turn out than those that vote Labour. </p>
 <p>I have a feeling that this difference could be due to how closely fought an election was. I can imaging a situation where the turnout of an area is lower than average if it is expected beforehand that one party or candidate is going to win the election by a long way. While the data does not allow me to directly measure this feeling, I can try and get a proxy for it by looking at the number of votes the winning candidate won by, as a percentage of the total number of voters. </p>
 <p>To do this, I am going to look at every election and collect both the fraction of the votes the winner received, and the percentage turnout for the election. Again I am going to subtract off the mean turnout for that year from each of the elections. </p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVSpercent.png"><img alt="Turnout Vs Percent of votes the winner received" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVSpercent.png" title="Turnout Vs Percent of votes the winner received" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVSpercent.png"><img alt="Turnout Vs Percent of votes the winner received" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVSpercent.png" title="Turnout Vs Percent of votes the winner received"></a></p>
 <p>Here every data point represents the result of a single election in a single constituency in a single year.</p>
 <p>Fitting a straight line to the data results in the black line over the top of the data points, with the form of the fit and <a href="http://en.wikipedia.org/wiki/Coefficient_of_determination">R squared</a> value quoted on the graph. There is some sort of general pattern there - when the winning candidate gets more votes the turnout is on average lower, but the low <span class="math">\(R^{2}\)</span> value suggests that only 16% of the variance in the turnout can be explained this way.</p>
 <p>The above graph hints that there may be a difference between the parties, but does not make it clear. Let's look at each party in turn and see how they fit into the overall pattern.</p>
-<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVspercentByParty.png"><img alt="Turnout Vs Percent of votes the winner received - split by party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVspercentByParty.png" title="Turnout Vs Percent of votes the winner received" /></a></p>
+<p><a href="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVspercentByParty.png"><img alt="Turnout Vs Percent of votes the winner received - split by party" src="http://www.degeneratestate.org/posts/2015/Jan/20/uk-general-elections-part1/turnoutVspercentByParty.png" title="Turnout Vs Percent of votes the winner received"></a></p>
 <p>Where each square shows has the results for a different party highlighted - the results for the other parties have had their transparency reduced.</p>
 <p>This is interesting: different parties show different shapes. Qualitatively we can note the following</p>
 <ul>
@@ -11924,11 +11945,9 @@ jQuery(document).ready(function($) {
     }
 
     var mathjaxscript = document.createElement('script');
-    var location_protocol = (false) ? 'https' : document.location.protocol;
-    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
     mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
     mathjaxscript.type = 'text/javascript';
-    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
     mathjaxscript[(window.opera ? "innerHTML" : "text")] =
         "MathJax.Hub.Config({" +
         "    config: ['MMLorHTML.js']," +

@@ -188,12 +188,10 @@ optgroup {
 }
 table {
   border-collapse: collapse;
-  border-spacing: 0;
+  border-spacing: 2;
 }
-td,
-th {
-  padding: 0;
-}
+
+
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 @media print {
   *,
@@ -11770,6 +11768,29 @@ div.collapseheader {
     cursor: pointer;
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+
+
+th:first-child, td:first-child
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+th, td
+{
+text-align:middle !important;
+padding: 8px !important;
+padding-left: 8px !important;
+padding-right: 8px !important;
+}
+
+
+tr:hover {
+background-color: #f5f5ff
+}
+
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
@@ -11839,6 +11860,7 @@ jQuery(document).ready(function($) {
 		    </header><!-- /#banner -->
 
 <ul>
+    <li><a href="http://www.degeneratestate.org/category/causal-inference-part-1-potential-outcomes.html">causal-inference-part-1-potential-outcomes</a></li>
     <li><a href="http://www.degeneratestate.org/category/extracting_pdf_tables.html">extracting_pdf_tables</a></li>
     <li><a href="http://www.degeneratestate.org/category/first.html">First</a></li>
     <li><a href="http://www.degeneratestate.org/category/gameoflife1.html">GameOfLife1</a></li>

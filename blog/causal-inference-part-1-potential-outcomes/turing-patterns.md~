@@ -1,0 +1,6 @@
+Title: Turing Patterns
+Author: Iain
+Summary: Turing Patterns 
+Date: 2017-05-05
+
+{% notebook turing-patterns/turing-patterns.ipynb %}
